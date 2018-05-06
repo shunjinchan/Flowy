@@ -1,0 +1,226 @@
+{
+    "_declaration": {
+        "attributes": {
+            "version": "1.0"
+        }
+    },
+    "opml": {
+        "attributes": {
+            "version": "2.0"
+        },
+        "head": {
+            "ownerEmail": {
+                "_text": "shunjinchan@gmail.com"
+            }
+        },
+        "body": {
+            "outline": [
+                {
+                    "attributes": {
+                        "text": "动漫",
+                        "_note": "#动漫"
+                    },
+                    "outline": [
+                        {
+                            "attributes": {
+                                "text": "热血"
+                            },
+                            "outline": [
+                                {
+                                    "attributes": {
+                                        "text": "钢之炼金术师"
+                                    }
+                                },
+                                {
+                                    "attributes": {
+                                        "text": "进击的巨人"
+                                    }
+                                },
+                                {
+                                    "attributes": {
+                                        "text": "海贼王"
+                                    }
+                                },
+                                {
+                                    "attributes": {
+                                        "text": "一拳超人"
+                                    }
+                                },
+                                {
+                                    "attributes": {
+                                        "text": "火影忍者"
+                                    }
+                                }
+                            ]
+                        },
+                        {
+                            "attributes": {
+                                "text": "运动"
+                            },
+                            "outline": [
+                                {
+                                    "attributes": {
+                                        "text": "灌篮高手"
+                                    }
+                                },
+                                {
+                                    "attributes": {
+                                        "text": "排球少年"
+                                    }
+                                },
+                                {
+                                    "attributes": {
+                                        "text": "棋魂"
+                                    }
+                                },
+                                {
+                                    "attributes": {
+                                        "text": "Megalo Box"
+                                    }
+                                }
+                            ]
+                        },
+                        {
+                            "attributes": {
+                                "text": "吐槽"
+                            },
+                            "outline": {
+                                "attributes": {
+                                    "text": "银魂"
+                                }
+                            }
+                        },
+                        {
+                            "attributes": {
+                                "text": "奇幻"
+                            },
+                            "outline": [
+                                {
+                                    "attributes": {
+                                        "text": "剑风传奇"
+                                    }
+                                },
+                                {
+                                    "attributes": {
+                                        "text": "JOJO 的奇妙冒险"
+                                    }
+                                },
+                                {
+                                    "attributes": {
+                                        "text": "Hellsing Ultimate OVA（皇家国教骑士团）"
+                                    }
+                                }
+                            ]
+                        },
+                        {
+                            "attributes": {
+                                "text": "剧情"
+                            },
+                            "outline": [
+                                {
+                                    "attributes": {
+                                        "text": "星际牛仔"
+                                    }
+                                },
+                                {
+                                    "attributes": {
+                                        "text": "永生之酒"
+                                    }
+                                },
+                                {
+                                    "attributes": {
+                                        "text": "怪物"
+                                    }
+                                }
+                            ]
+                        },
+                        {
+                            "attributes": {
+                                "text": "科幻"
+                            },
+                            "outline": [
+                                {
+                                    "attributes": {
+                                        "text": "Ghost in the Shell（攻壳机动队）"
+                                    }
+                                },
+                                {
+                                    "attributes": {
+                                        "text": "灵能百分百"
+                                    }
+                                }
+                            ]
+                        },
+                        {
+                            "attributes": {
+                                "text": "冒险"
+                            },
+                            "outline": {
+                                "attributes": {
+                                    "text": "全职猎人"
+                                }
+                            }
+                        },
+                        {
+                            "attributes": {
+                                "text": "悬疑"
+                            },
+                            "outline": [
+                                {
+                                    "attributes": {
+                                        "text": "死亡笔记"
+                                    }
+                                },
+                                {
+                                    "attributes": {
+                                        "text": "妄想代理人"
+                                    }
+                                },
+                                {
+                                    "attributes": {
+                                        "text": "只有我不在的街道"
+                                    }
+                                },
+                                {
+                                    "attributes": {
+                                        "text": "命运石之门"
+                                    }
+                                }
+                            ]
+                        },
+                        {
+                            "attributes": {
+                                "text": "爱情"
+                            },
+                            "outline": {
+                                "attributes": {
+                                    "text": "擅长捉弄人的高木同学"
+                                }
+                            }
+                        },
+                        {
+                            "attributes": {
+                                "text": "搞笑"
+                            },
+                            "outline": {
+                                "attributes": {
+                                    "text": "日常"
+                                }
+                            }
+                        }
+                    ]
+                },
+                {
+                    "attributes": {
+                        "text": "备忘录"
+                    },
+                    "outline": {
+                        "attributes": {
+                            "text": "WorkFlowy 邀请页面：https://workflowy.com/invite/3a724bf6.lnx"
+                        }
+                    }
+                }
+            ]
+        }
+    }
+}

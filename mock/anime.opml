@@ -1,0 +1,45 @@
+﻿<?xml version="1.0"?>
+<opml version="2.0">
+  <head>
+    <ownerEmail>shunjinchan@gmail.com</ownerEmail>
+  </head>
+  <body>
+    <outline text="动漫" _note="#动漫" >
+      <outline text="热血" >
+        <outline text="钢之炼金术师" />
+        <outline text="进击的巨人" />
+        <outline text="海贼王" />
+        <outline text="一拳超人" />
+        <outline text="火影忍者" /></outline>
+      <outline text="运动" >
+        <outline text="灌篮高手" />
+        <outline text="排球少年" />
+        <outline text="棋魂" />
+        <outline text="Megalo Box" /></outline>
+      <outline text="吐槽" >
+        <outline text="银魂" /></outline>
+      <outline text="奇幻" >
+        <outline text="剑风传奇" />
+        <outline text="JOJO 的奇妙冒险" />
+        <outline text="Hellsing Ultimate OVA（皇家国教骑士团）" /></outline>
+      <outline text="剧情" >
+        <outline text="星际牛仔" />
+        <outline text="永生之酒" />
+        <outline text="怪物" /></outline>
+      <outline text="科幻" >
+        <outline text="Ghost in the Shell（攻壳机动队）" />
+        <outline text="灵能百分百" /></outline>
+      <outline text="冒险" >
+        <outline text="全职猎人" /></outline>
+      <outline text="悬疑" >
+        <outline text="死亡笔记" />
+        <outline text="妄想代理人" />
+        <outline text="只有我不在的街道" />
+        <outline text="命运石之门" /></outline>
+      <outline text="爱情" >
+        <outline text="擅长捉弄人的高木同学" /></outline>
+      <outline text="搞笑" >
+        <outline text="日常" /></outline>
+    </outline>
+  </body>
+</opml>
