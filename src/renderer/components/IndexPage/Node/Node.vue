@@ -1,27 +1,25 @@
 <template>
     <section class="node">
-        <node-text :attributes="attributes"
-                   :id="id"
+        <node-text :data="data"
                    :parentid="parentid"
                    :renderCollapseButton="hasOutline"
                    :renderExpandButton="hasOutline" />
-        <node-note :attributes="attributes"
-                   :id="id"
+        <node-note :data="data"
                    :parentid="parentid"/>
-        <node-outline v-if="isExpand"
-                      :outline="outline"
-                      :id="id" />
+        <node-outline v-if="hasOutline && isExpand"
+                      :data="data" />
     </section>
 </template>
 
 <script>
+  import _ from 'lodash'
   import NodeNote from './NodeNote'
   import NodeText from './NodeText'
   import NodeOutline from './NodeOutline'
 
   export default {
     name: 'node',
-    props: ['attributes', 'outline', 'id', 'parentid'],
+    props: ['data', 'parentid'],
     components: {
       NodeNote,
       NodeText,
@@ -30,12 +28,11 @@
     computed: {
       // 判断有没有子节点
       hasOutline () {
-        return (this.outline && Array.isArray(this.outline) &&
-          this.outline.length > 0)
+        return _.get(this.data, 'outline').length > 0
       },
       // node-outline 默认展开，如果要折叠就将 isExpand 设置为 false
       isExpand () {
-        return this.attributes.isExpand !== false
+        return _.get(this.data, 'attributes.isExpand') !== false
       }
     }
   }

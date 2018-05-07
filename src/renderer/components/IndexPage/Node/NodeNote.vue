@@ -1,19 +1,23 @@
 <template>
-    <div class="node-note">{{ attributes.note }}</div>
+    <div class="node-note">{{ note }}</div>
 </template>
 
 <script>
+  import _ from 'lodash'
+
   export default {
     name: 'node-note',
     props: {
-      attributes: {
+      data: {
         type: Object
-      },
-      id: {
-        type: String
       },
       parentid: {
         type: String
+      }
+    },
+    computed: {
+      note () {
+        return _.get(this.data, 'attributes.note')
       }
     }
   }

@@ -1,33 +1,31 @@
 <template>
     <article className="outline">
-        <!--<node :attributes="attributes" :outline="outline" :id="id"></node>-->
-        <root :attributes="attributes" :outline="outline" :id="id"></root>
+        <root :data="data"></root>
     </article>
 </template>
 
 <script>
   import { mapState } from 'vuex'
-  import Node from './Node/Node'
   import Root from './Root'
 
   export default {
     name: 'outline',
     components: {
-      Node,
       Root
     },
     computed: mapState({
-      attributes: state => state.Outline.root.attributes,
-      outline: state => state.Outline.root.outline,
-      id: state => state.Outline.root.id
+      data: state => state.Outline.root
     }),
     mounted () {
-      if (this.outline.length === 0) {
-        const id = this.id
-        this.$store.commit('addOutline', {
-          id: id
-        })
-      }
+      console.log(this.data)
+      // this.$store.dispatch('getRootNode')
+      // // 如果根节点没有子节点，为根节点新增一个子节点
+      // if (this.outline && this.outline.length === 0) {
+      //   const _id = this._id
+      //   this.$store.dispatch('addOutline', {
+      //     parentid: _id
+      //   })
+      // }
     }
   }
 </script>

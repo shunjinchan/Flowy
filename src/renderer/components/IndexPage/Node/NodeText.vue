@@ -7,12 +7,13 @@
         <expand-button v-if="renderExpandButton"
                        v-show="showExpandButton" />
         <bullet-button />
-        <text-field :text="attributes.text"
+        <text-field :text="text"
                     @updateOutlineText="updateOutlineText" />
     </div>
 </template>
 
 <script>
+  import _ from 'lodash'
   import CollapseButton from './CollapseButton'
   import ExpandButton from './ExpandButton'
   import BulletButton from './BulletButton'
@@ -27,11 +28,8 @@
       }
     },
     props: {
-      attributes: {
+      data: {
         type: Object
-      },
-      id: {
-        type: String
       },
       parentid: {
         type: String
@@ -41,6 +39,11 @@
       },
       renderExpandButton: {
         type: Boolean
+      }
+    },
+    computed: {
+      text () {
+        return _.get(this.data, 'attributes.text')
       }
     },
     components: {
@@ -66,16 +69,15 @@
       },
       updateOutlineText (text) {
         const parentid = this.parentid
-        const id = this.id
-        // 更新节点
-        this.$store.commit('updateOutlineText', {
+        const _id = this.data._id
+        this.$store.dispatch('updateOutlineText', {
           parentid: parentid,
-          id: id,
+          _id: _id,
           text: text
         })
-        // 新增一个节点
-        this.$store.commit('addOutline', {
-          id: parentid
+        this.$store.dispatch('addOutline', {
+          parentid: parentid,
+          previd: _id
         })
       }
     }

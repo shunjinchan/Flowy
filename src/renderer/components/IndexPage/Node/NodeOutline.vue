@@ -1,17 +1,20 @@
 <script>
+  import _ from 'lodash'
   import Node from './Node'
 
   export default {
     name: 'node-outline',
     props: {
-      outline: {
-        type: Array,
-        default () {
-          return []
-        }
+      data: {
+        type: Object // 父组件的 _id 将成为子组件的 parentid
+      }
+    },
+    computed: {
+      outline () {
+        return _.get(this.data, 'outline') ? _.get(this.data, 'outline') : []
       },
-      id: {
-        type: String // 父组件的 id 将成为子组件的 parentid
+      hasOutline () {
+        return this.outline && this.outline.length > 0
       }
     },
     components: {
@@ -20,15 +23,13 @@
     render (h) {
       if (!this.hasOutline) return
 
-      const ele = this.outline.map((id) => {
-        const item = this.getOutline(id)
+      const ele = this.outline.map((_id) => {
+        const item = this.getOutline(_id)
         console.log(item)
         return (
           <Node
-            attributes={item.attributes}
-            id={item.id}
-            parentid={this.id}
-            outline={item.outline} />
+            data={item}
+            parentid={this.data._id}/>
         )
       })
 
@@ -38,14 +39,9 @@
         </div>
       )
     },
-    computed: {
-      hasOutline () {
-        return this.outline.length > 0
-      }
-    },
     methods: {
-      getOutline (id) {
-        return this.$store.state.Outline[id]
+      getOutline (_id) {
+        return this.$store.state.Outline[_id]
       }
     }
   }

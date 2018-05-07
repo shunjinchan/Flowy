@@ -1,5 +1,6 @@
 <template>
     <main class="board">
+        <empty-all-outline></empty-all-outline>
         <crumb></crumb>
         <outline></outline>
     </main>
@@ -8,12 +9,14 @@
 <script>
 import Outline from './Outline'
 import Crumb from './Crumb'
+import EmptyAllOutline from './EmptyAllOutline'
 
 export default {
   name: 'board',
   components: {
     Outline,
-    Crumb
+    Crumb,
+    EmptyAllOutline
   }
 }
 </script>
