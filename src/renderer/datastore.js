@@ -12,4 +12,18 @@ const db = new Nedb({
 const Cursor = db.find().constructor
 bluebird.promisifyAll(Cursor.prototype)
 
+// db.update callback 函数有多个参数，需要单独处理
+const update = db.update
+db.updateAsync = function (...args) {
+  return new Promise((resolve, reject) => {
+    update.apply(db, [...args, (err, numAffected, affectedDocuments, upsert) => {
+      return err ? reject(err) : resolve({
+        numAffected,
+        affectedDocuments,
+        upsert
+      })
+    }])
+  })
+}
+
 export default db

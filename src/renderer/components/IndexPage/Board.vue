@@ -1,28 +1,30 @@
 <template>
     <main class="board">
-        <empty-all-outline></empty-all-outline>
-        <crumb></crumb>
-        <outline></outline>
+        <empty-all-outline />
+        <crumb />
+        <article className="outline">
+            <root-container />
+        </article>
     </main>
 </template>
 
 <script>
-import Outline from './Outline'
-import Crumb from './Crumb'
-import EmptyAllOutline from './EmptyAllOutline'
+  import Crumb from './Crumb'
+  import RootContainer from './RootContainer'
+  import EmptyAllOutline from './EmptyAllOutline'
 
-export default {
-  name: 'board',
-  components: {
-    Outline,
-    Crumb,
-    EmptyAllOutline
+  export default {
+    name: 'board',
+    components: {
+      RootContainer,
+      Crumb,
+      EmptyAllOutline
+    }
   }
-}
 </script>
 
 <style lang="scss" scoped>
-.board {
+  .board {
     position: relative;
     background: #fff;
     opacity: 1;
@@ -37,5 +39,5 @@ export default {
     font-family: 'Helvetica Neue',Arial,Sans-serif;
     font-size: 16px;
     font-weight: normal;
-}
+  }
 </style>

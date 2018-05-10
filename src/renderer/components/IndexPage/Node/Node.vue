@@ -1,14 +1,14 @@
 <template>
-    <section class="node">
-        <node-text :data="data"
-                   :parentid="parentid"
-                   :renderCollapseButton="hasOutline"
-                   :renderExpandButton="hasOutline" />
-        <node-note :data="data"
-                   :parentid="parentid"/>
-        <node-outline v-if="hasOutline && isExpand"
-                      :data="data" />
-    </section>
+  <section class="node">
+    <node-text :data="data"
+               :parentid="parentid"
+               :renderCollapseButton="hasOutline"
+               :renderExpandButton="hasOutline" />
+    <node-note :data="data"
+               :parentid="parentid"/>
+    <node-outline v-if="hasOutline && isExpand"
+                  :data="data" />
+  </section>
 </template>
 
 <script>
@@ -19,16 +19,31 @@
 
   export default {
     name: 'node',
-    props: ['data', 'parentid'],
+
+    props: {
+      data: {
+        type: Object,
+        require: true
+      },
+      parentid: {
+        type: String,
+        require: false
+      }
+    },
+
     components: {
       NodeNote,
       NodeText,
       NodeOutline
     },
+
     computed: {
+      outline () {
+        return _.get(this.data, 'outline') || []
+      },
       // 判断有没有子节点
       hasOutline () {
-        return _.get(this.data, 'outline').length > 0
+        return this.outline.length > 0
       },
       // node-outline 默认展开，如果要折叠就将 isExpand 设置为 false
       isExpand () {
@@ -39,14 +54,14 @@
 </script>
 
 <style lang="scss" scoped>
-    .node {
-        > .node-outline {
-            padding-left: 18px;
-        }
-        &.open {
-            .node-outline {
-                display: none;
-            }
-        }
+  .node {
+    > .node-outline {
+      padding-left: 18px;
     }
+    &.open {
+      .node-outline {
+          display: none;
+      }
+    }
+  }
 </style>
