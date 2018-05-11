@@ -1,9 +1,11 @@
 <template>
     <div class="text-field"
+         ref="input"
+         v-text="text"
          :contenteditable="editable"
-         v-html="text"
          @click="handleClick"
-         @keypress.enter.prevent="handleKeypress">
+         @keypress.enter.prevent="handleKeypressEnter"
+         @keyup.delete.prevent="handleKeyupDelete">
     </div>
 </template>
 
@@ -31,9 +33,15 @@
       handleClick () {
         this.enableEditable()
       },
-      handleKeypress (evt) {
+      handleKeypressEnter (evt) {
         this.disableEditable()
         this.$emit('updateOutlineText', evt.target.textContent)
+        this.$emit('addOutline')
+      },
+      handleKeyupDelete (evt) {
+        if (evt.target.textContent === '') {
+          this.$emit('updateOutlineText', evt.target.textContent)
+        }
       }
     }
   }

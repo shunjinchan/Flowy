@@ -30,15 +30,14 @@
       }
     },
 
-    mounted () {
-      this.$store.dispatch('insertRootOutline')
-      this.$store.dispatch('getAllOutline').then(() => {
-        if (!this.data.outline || this.data.outline.length === 0) {
-          this.addOutline({
-            parentid: 'root'
-          })
-        }
-      })
+    async mounted () {
+      await this.$store.dispatch('initRootOutline')
+      await this.$store.dispatch('getAllOutline')
+      if (!this.data.outline || this.data.outline.length === 0) {
+        this.addOutline({
+          parentid: 'root'
+        })
+      }
     }
   }
 </script>

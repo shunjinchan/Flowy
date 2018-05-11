@@ -1,5 +1,5 @@
 <template>
-    <div class="expand-button" @click="handleClick">
+    <div class="collapse-button" @click="handleClick">
         <svg viewBox="0 0 20 20" version="1.1"
              xmlns="http://www.w3.org/2000/svg">
             <line x1="5.5" y1="10" x2="14.5" y2="10"></line>
@@ -17,7 +17,7 @@
 </script>
 
 <style lang="scss" scoped>
-.expand-button {
+.collapse-button {
     width: 20px;
     height: 20px;
     svg {

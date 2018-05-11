@@ -29,7 +29,6 @@
       if (!this.hasOutline) return
 
       const ele = this.outline.map(item => {
-        console.log(this.$store.state.Outline)
         return (
           <Node data={this.$store.state.Outline[item]} parentid={this.data._id} />
         )

@@ -1,14 +1,15 @@
 <template>
   <div class="node-text"
        @mouseenter="handleMouseenter"
-       @mouseleave="handleMouseLeave">
+       @mouseleave="handleMouseleave">
     <collapse-button v-if="renderCollapseButton"
-                     v-show="showCollapseButton"/>
+                     v-show="showCollapseButton" />
     <expand-button v-if="renderExpandButton"
-                   v-show="showExpandButton"/>
+                   v-show="showExpandButton" />
     <bullet-button/>
     <text-field :text="text"
-                @updateOutlineText="updateOutlineText"/>
+                @updateOutlineText="updateOutlineText"
+                @addOutline="addOutline"/>
   </div>
 </template>
 
@@ -69,22 +70,23 @@
       handleMouseenter () {
         this.showButton()
       },
-      handleMouseLeave () {
+      handleMouseleave () {
         this.hideButton()
       },
       updateOutlineText (text) {
         this.data.attributes.text = text
-        const parentid = this.parentid
         const outlineData = this.data
+        this.$store.dispatch('updateOutline', outlineData)
+      },
+      addOutline () {
+        const parentid = this.parentid
         const _id = this.data._id
-        this.$store.dispatch('updateOutline', {
-          outlineData
-        })
         this.$store.dispatch('addOutline', {
           parentid: parentid,
           previd: _id
         })
-      }
+      },
+      deleteOutline () {}
     }
   }
 </script>

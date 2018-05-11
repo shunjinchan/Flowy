@@ -17,7 +17,7 @@
 .bullet-button {
     width: 18px;
     height: 18px;
-    margin: 1px 4px 0 0;
+    margin: 1px 4px 1px 0;
     background: url("../../../assets/svg/bullet.svg") no-repeat;
     &:hover {
          background-color: #aaa;

@@ -2,11 +2,11 @@
   <section class="node">
     <node-text :data="data"
                :parentid="parentid"
-               :renderCollapseButton="hasOutline"
-               :renderExpandButton="hasOutline" />
+               :renderCollapseButton="hasOutline && isExpanded"
+               :renderExpandButton="hasOutline && isCollapsed" />
     <node-note :data="data"
                :parentid="parentid"/>
-    <node-outline v-if="hasOutline && isExpand"
+    <node-outline v-if="hasOutline && isExpanded" e
                   :data="data" />
   </section>
 </template>
@@ -45,9 +45,12 @@
       hasOutline () {
         return this.outline.length > 0
       },
-      // node-outline 默认展开，如果要折叠就将 isExpand 设置为 false
-      isExpand () {
-        return _.get(this.data, 'attributes.isExpand') !== false
+      // node-outline 默认展开，如果要折叠就将 isExpanded 设置为 false
+      isExpanded () {
+        return _.get(this.data, 'attributes.isExpanded') !== false
+      },
+      isCollapsed () {
+        return !this.isExpanded
       }
     }
   }
