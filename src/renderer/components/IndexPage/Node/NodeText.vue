@@ -13,6 +13,7 @@
                 :editable="editable"
                 :handleKeypressEnter="handleKeypressEnter"
                 :handleKeyupDelete="handleKeyupDelete"
+                :handleKeydownTab="handleKeydownTab"
                 :handleClick="handleTextClick"
                 :handleInput="handleTextInput" />
   </div>
@@ -32,7 +33,9 @@
       return {
         showCollapseButton: false,
         showExpandButton: false,
-        editable: false
+        editable: false,
+        text: _.get(this.data, 'attributes.text') || '',
+        _id: this.data._id
       }
     },
 
@@ -42,6 +45,9 @@
       },
       parentid: {
         type: String
+      },
+      index: {
+        type: Number
       },
       renderCollapseButton: {
         type: Boolean
@@ -61,14 +67,13 @@
           return () => {}
         },
         require: false
+      },
+      previd: {
+        type: String
       }
     },
 
-    computed: {
-      text () {
-        return _.get(this.data, 'attributes.text')
-      }
-    },
+    computed: {},
 
     components: {
       CollapseButton,
@@ -92,14 +97,17 @@
       handleMouseleave () {
         this.hideButton()
       },
-      deleteOutline () {
+      deleteOutline (param) {
+        this.$store.dispatch('deleteOutline', param)
+      },
+      deleteCurrentOutline () {
         const parentid = this.parentid
-        const _id = this.data._id
+        const _id = this._id
         const param = {
           parentid: parentid,
           _id: _id
         }
-        this.$store.dispatch('deleteOutline', param)
+        this.deleteOutline(param)
       },
       // text-field
       enableEditable () {
@@ -110,25 +118,32 @@
       },
       updateOutlineText (text) {
         const data = _.merge({}, this.data, {
-          attributes: {
-            text: text
-          }
+          attributes: { text: text }
         })
         return data
       },
-      addOutline () {
-        const parentid = this.parentid
-        const _id = this.data._id
-        const param = {
-          parentid: parentid,
-          previd: _id
-        }
+      addOutline (param) {
         this.$store.dispatch('addOutline', param)
+      },
+      deleteOutlineChildren (_id, parentid) {
+        this.$store.dispatch('deleteOutlineChildren', { _id, parentid })
+      },
+      moveOutlineToTargetOutline (_id, targetid) {
+        // 更新当前节点，将该节点设置为其目标节点的子节点
+        this.$store.dispatch('addOutlineChildren', { _id, targetid })
       },
       handleKeypressEnter (evt) {
         this.disableEditable()
-        this.updateOutline(this.updateOutlineText(evt.target.textContent))
-        this.addOutline()
+        // 没有文字，将该节点层级往上推上一层，设置为其父节点的下一个节点
+        if (evt.target.textContent === '') {
+          console.log('kkk')
+        } else { // 有文字，更新该节点，并且添加一个新的节点
+          this.updateOutline(this.updateOutlineText(evt.target.textContent))
+          const parentid = this.parentid
+          const _id = this._id
+          const param = { parentid: parentid, previd: _id }
+          this.addOutline(param)
+        }
       },
       handleTextClick () {
         this.enableEditable()
@@ -138,8 +153,21 @@
       },
       handleKeyupDelete (evt) {
         if (evt.target.textContent === '') {
-          this.updateOutlineText(evt.target.textContent)
-          this.deleteOutline()
+          this.deleteCurrentOutline()
+        }
+      },
+      handleKeydownTab (evt) {
+        console.log(this.index)
+        // 没有文字，删除当前节点，为前一个节点增加子节点
+        if (
+          evt.target.textContent === '' &&
+          typeof this.index === 'number' &&
+          this.index > 0
+        ) {
+          this.deleteOutlineChildren(this._id, this.parentid)
+          const parentid = this.previd
+          const param = { parentid: parentid }
+          this.addOutline(param)
         }
       }
     }

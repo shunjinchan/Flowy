@@ -2,6 +2,8 @@
   <section class="node">
     <node-text :data="data"
                :parentid="parentid"
+               :previd="previd"
+               :index="index"
                :renderCollapseButton="hasChildren && isExpanded"
                :renderExpandButton="hasChildren && isCollapsed"
                :collapseChildren="collapseChildren"
@@ -31,6 +33,9 @@
       parentid: {
         type: String,
         require: false
+      },
+      index: {
+        type: Number
       }
     },
 
@@ -43,6 +48,18 @@
     computed: {
       children () {
         return _.get(this.data, 'outline') || []
+      },
+      previd () {
+        let previd = ''
+        if (this.parentid && this.data && this.data._id) {
+          const outline = this.$store.state.Outline[this.parentid].outline
+          const currentIndex = outline.indexOf(this.data._id)
+          // 上一个 id
+          if (currentIndex >= 1) {
+            previd = outline[currentIndex - 1]
+          }
+        }
+        return previd
       },
       hasChildren () {
         return this.children.length > 0

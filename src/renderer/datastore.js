@@ -16,13 +16,15 @@ bluebird.promisifyAll(Cursor.prototype)
 const update = db.update
 db.updateAsync = function (...args) {
   return new Promise((resolve, reject) => {
-    update.apply(db, [...args, (err, numAffected, affectedDocuments, upsert) => {
-      return err ? reject(err) : resolve({
-        numAffected,
-        affectedDocuments,
-        upsert
-      })
-    }])
+    update.apply(
+      db,
+      [...args, (err, numAffected, affectedDocuments, upsert) => {
+        return err ? reject(err) : resolve({
+          numAffected,
+          affectedDocuments,
+          upsert
+        })
+      }])
   })
 }
 

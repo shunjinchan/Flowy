@@ -28,9 +28,10 @@
     render (h) {
       if (!this.hasChildren) return
 
-      const ele = this.children.map(item => {
+      const ele = this.children.map((item, index) => {
+        const data = this.$store.state.Outline[item] || {}
         return (
-          <Node data={this.$store.state.Outline[item]} parentid={this.data._id} />
+          <Node data={data} index={index} parentid={this.data._id} key={data._id} />
         )
       })
 

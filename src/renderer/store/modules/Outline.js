@@ -1,3 +1,4 @@
+import Vue from 'vue'
 import _ from 'lodash'
 import db from '../../datastore'
 
@@ -15,7 +16,7 @@ const state = {
 }
 
 const getters = {
-  root: state => state.root
+  getRoot: state => state.root
 }
 
 const mutations = {
@@ -26,7 +27,7 @@ const mutations = {
    */
   setAllOutline (state, data) {
     data.forEach(item => {
-      state[item._id] = item
+      Vue.set(state, item._id, item)
     })
   },
 
@@ -49,7 +50,7 @@ const mutations = {
   // completeOutline (state, data) {},
   //
   // // 子节点也要复制
-  // duplicateOutline (state, date) {},
+  // duplicateOutline (state, data) {},
 
   /**
    * 清空所有节点数据
@@ -175,6 +176,27 @@ const actions = {
     )
     commit('updateOutline', affectedDocuments)
     return affectedDocuments
+  },
+
+  async deleteOutlineChildren ({ commit, dispatch }, { _id, parentid }) {
+    let parentOutlineData = await db.findOneAsync({ _id: parentid })
+    // 更新父节点
+    if (parentOutlineData) {
+      const index = parentOutlineData.outline.indexOf(_id)
+      parentOutlineData.outline.splice(index, 1)
+      parentOutlineData = await dispatch('updateOutline', parentOutlineData)
+    }
+    return parentOutlineData
+  },
+
+  async addOutlineChildren ({ commit, dispatch }, { _id, targetid }) {
+    let targetOutlineData = await db.findOneAsync({ _id: targetid })
+    // 更新父节点
+    if (targetOutlineData) {
+      targetOutlineData.outline.push(_id)
+      targetOutlineData = await dispatch('updateOutline', targetOutlineData)
+    }
+    return targetOutlineData
   }
 }
 

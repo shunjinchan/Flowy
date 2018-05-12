@@ -6,7 +6,8 @@
          @click="handleClick"
          @input="handleInput"
          @keypress.enter.prevent="handleKeypressEnter"
-         @keyup.delete.prevent="handleKeyupDelete">
+         @keyup.delete.prevent="handleKeyupDelete"
+         @keydown.tab.prevent="handleKeydownTab">
     </div>
 </template>
 
@@ -38,6 +39,13 @@
         require: false
       },
       handleKeyupDelete: {
+        type: Function,
+        default () {
+          return () => {}
+        },
+        require: false
+      },
+      handleKeydownTab: {
         type: Function,
         default () {
           return () => {}

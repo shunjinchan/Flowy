@@ -10,7 +10,7 @@
     },
 
     computed: mapGetters({
-      data: 'root'
+      data: 'getRoot'
     }),
 
     render (h) {
