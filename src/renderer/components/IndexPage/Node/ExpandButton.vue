@@ -1,5 +1,5 @@
 <template>
-    <div class="expand-button">
+    <div class="expand-button" @click="handleClick">
         <svg viewBox="0 0 20 20" version="1.1"
              xmlns="http://www.w3.org/2000/svg">
             <line x1="5.5" y1="10" x2="14.5" y2="10"></line>
@@ -10,7 +10,16 @@
 
 <script>
   export default {
-    name: 'expand-button'
+    name: 'expand-button',
+    props: {
+      handleClick: {
+        type: Function,
+        default () {
+          return () => {}
+        },
+        require: false
+      }
+    }
   }
 </script>
 

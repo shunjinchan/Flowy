@@ -3,13 +3,18 @@
        @mouseenter="handleMouseenter"
        @mouseleave="handleMouseleave">
     <collapse-button v-if="renderCollapseButton"
-                     v-show="showCollapseButton" />
+                     v-show="showCollapseButton"
+                     :handleClick="collapseChildren" />
     <expand-button v-if="renderExpandButton"
-                   v-show="showExpandButton" />
+                   v-show="showExpandButton"
+                   :handleClick="expandChildren" />
     <bullet-button/>
     <text-field :text="text"
-                @updateOutlineText="updateOutlineText"
-                @addOutline="addOutline"/>
+                :editable="editable"
+                :handleKeypressEnter="handleKeypressEnter"
+                :handleKeyupDelete="handleKeyupDelete"
+                :handleClick="handleTextClick"
+                :handleInput="handleTextInput" />
   </div>
 </template>
 
@@ -26,7 +31,8 @@
     data () {
       return {
         showCollapseButton: false,
-        showExpandButton: false
+        showExpandButton: false,
+        editable: false
       }
     },
 
@@ -42,6 +48,19 @@
       },
       renderExpandButton: {
         type: Boolean
+      },
+      collapseChildren: {
+        type: Function
+      },
+      expandChildren: {
+        type: Function
+      },
+      updateOutline: {
+        type: Function,
+        default () {
+          return () => {}
+        },
+        require: false
       }
     },
 
@@ -73,20 +92,56 @@
       handleMouseleave () {
         this.hideButton()
       },
+      deleteOutline () {
+        const parentid = this.parentid
+        const _id = this.data._id
+        const param = {
+          parentid: parentid,
+          _id: _id
+        }
+        this.$store.dispatch('deleteOutline', param)
+      },
+      // text-field
+      enableEditable () {
+        this.editable = true
+      },
+      disableEditable () {
+        this.editable = false
+      },
       updateOutlineText (text) {
-        this.data.attributes.text = text
-        const outlineData = this.data
-        this.$store.dispatch('updateOutline', outlineData)
+        const data = _.merge({}, this.data, {
+          attributes: {
+            text: text
+          }
+        })
+        return data
       },
       addOutline () {
         const parentid = this.parentid
         const _id = this.data._id
-        this.$store.dispatch('addOutline', {
+        const param = {
           parentid: parentid,
           previd: _id
-        })
+        }
+        this.$store.dispatch('addOutline', param)
       },
-      deleteOutline () {}
+      handleKeypressEnter (evt) {
+        this.disableEditable()
+        this.updateOutline(this.updateOutlineText(evt.target.textContent))
+        this.addOutline()
+      },
+      handleTextClick () {
+        this.enableEditable()
+      },
+      handleTextInput (evt) {
+        this.updateOutline(this.updateOutlineText(evt.target.textContent))
+      },
+      handleKeyupDelete (evt) {
+        if (evt.target.textContent === '') {
+          this.updateOutlineText(evt.target.textContent)
+          this.deleteOutline()
+        }
+      }
     }
   }
 </script>
@@ -96,9 +151,14 @@
     display: flex;
     line-height: 20px;
     padding-top: 4px;
+    position: relative;
     .text-field {
       flex-grow: 1;
       outline: none;
+    }
+    .collapse-button, .expand-button {
+      position: absolute;
+      left: -20px;
     }
   }
 </style>

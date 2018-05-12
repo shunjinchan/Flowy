@@ -4,6 +4,7 @@
          v-text="text"
          :contenteditable="editable"
          @click="handleClick"
+         @input="handleInput"
          @keypress.enter.prevent="handleKeypressEnter"
          @keyup.delete.prevent="handleKeyupDelete">
     </div>
@@ -12,41 +13,48 @@
 <script>
   export default {
     name: 'text-field',
-    data () {
-      return {
-        editable: false
-      }
-    },
+
     props: {
       text: {
         type: String,
         default: ''
-      }
-    },
-    methods: {
-      enableEditable () {
-        this.editable = true
       },
-      disableEditable () {
-        this.editable = false
+      editable: {
+        type: Boolean,
+        default: false
       },
-      handleClick () {
-        this.enableEditable()
+      handleKeypressEnter: {
+        type: Function,
+        default () {
+          return () => {}
+        },
+        require: false
       },
-      handleKeypressEnter (evt) {
-        this.disableEditable()
-        this.$emit('updateOutlineText', evt.target.textContent)
-        this.$emit('addOutline')
+      handleClick: {
+        type: Function,
+        default () {
+          return () => {}
+        },
+        require: false
       },
-      handleKeyupDelete (evt) {
-        if (evt.target.textContent === '') {
-          this.$emit('updateOutlineText', evt.target.textContent)
-        }
+      handleKeyupDelete: {
+        type: Function,
+        default () {
+          return () => {}
+        },
+        require: false
+      },
+      handleInput: {
+        type: Function,
+        default () {
+          return () => {}
+        },
+        require: false
       }
     }
   }
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
 
 </style>

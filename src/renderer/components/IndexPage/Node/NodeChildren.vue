@@ -3,7 +3,7 @@
   import Node from './Node'
 
   export default {
-    name: 'node-outline',
+    name: 'node-children',
 
     props: {
       data: {
@@ -12,12 +12,12 @@
     },
 
     computed: {
-      outline () {
+      children () {
         const outline = _.get(this.data, 'outline')
         return outline || []
       },
-      hasOutline () {
-        return this.outline && this.outline.length > 0
+      hasChildren () {
+        return this.children && this.children.length > 0
       }
     },
 
@@ -26,16 +26,16 @@
     },
 
     render (h) {
-      if (!this.hasOutline) return
+      if (!this.hasChildren) return
 
-      const ele = this.outline.map(item => {
+      const ele = this.children.map(item => {
         return (
           <Node data={this.$store.state.Outline[item]} parentid={this.data._id} />
         )
       })
 
       return (
-        <div class="node-outline">
+        <div class="node-children">
           { ele }
         </div>
       )
@@ -44,8 +44,8 @@
 </script>
 
 <style scoped>
-    .node-outline {
-        border-left: 1px solid #eee;
-        margin-left: 9px;
-    }
+  .node-children {
+    border-left: 1px solid #eee;
+    margin-left: 9px;
+  }
 </style>

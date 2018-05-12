@@ -8,14 +8,14 @@
 </script>
 
 <style lang="scss" scoped>
-    .node {
-        > .node-outline {
-            padding-left: 18px;
-        }
-        &.open {
-            .node-outline {
-                display: none;
-            }
+.node {
+    > .node-children {
+        padding-left: 18px;
+    }
+    &.open {
+        .node-children {
+            display: none;
         }
     }
+}
 </style>

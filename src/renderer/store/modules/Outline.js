@@ -107,6 +107,19 @@ const actions = {
     return null
   },
 
+  async deleteOutline ({ commit, dispatch }, { parentid, _id }) {
+    const parentOutlineData = await db.findOneAsync({ _id: parentid })
+    // 移除节点
+    const numRemoved = await db.removeAsync({ _id: _id })
+    // 更新父节点
+    if (parentOutlineData) {
+      const index = parentOutlineData.outline.indexOf(_id)
+      parentOutlineData.outline.splice(index, 1)
+      await dispatch('updateOutline', parentOutlineData)
+    }
+    return numRemoved
+  },
+
   /**
    * 插入空的新节点
    * @param commit
@@ -139,7 +152,7 @@ const actions = {
    * @returns {Promise<number>}
    */
   async emptyAllOutline ({ commit, dispatch }) {
-    const numRemoved = await db.remove({}, { multi: true })
+    const numRemoved = await db.removeAsync({}, { multi: true })
     commit('emptyAllOutline')
     await dispatch('initRootOutline')
     await dispatch('addOutline', {

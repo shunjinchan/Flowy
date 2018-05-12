@@ -10,8 +10,14 @@
 <script>
   export default {
     name: 'collapse-button',
-    methods: {
-      handleClick () {}
+    props: {
+      handleClick: {
+        type: Function,
+        default () {
+          return () => {}
+        },
+        require: false
+      }
     }
   }
 </script>

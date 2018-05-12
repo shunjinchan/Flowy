@@ -2,12 +2,15 @@
   <section class="node">
     <node-text :data="data"
                :parentid="parentid"
-               :renderCollapseButton="hasOutline && isExpanded"
-               :renderExpandButton="hasOutline && isCollapsed" />
+               :renderCollapseButton="hasChildren && isExpanded"
+               :renderExpandButton="hasChildren && isCollapsed"
+               :collapseChildren="collapseChildren"
+               :expandChildren="expandChildren"
+               :updateOutline="updateOutline"/>
     <node-note :data="data"
                :parentid="parentid"/>
-    <node-outline v-if="hasOutline && isExpanded" e
-                  :data="data" />
+    <node-children v-if="hasChildren && isExpanded" e
+                   :data="data" />
   </section>
 </template>
 
@@ -15,7 +18,7 @@
   import _ from 'lodash'
   import NodeNote from './NodeNote'
   import NodeText from './NodeText'
-  import NodeOutline from './NodeOutline'
+  import NodeChildren from './NodeChildren'
 
   export default {
     name: 'node',
@@ -34,23 +37,44 @@
     components: {
       NodeNote,
       NodeText,
-      NodeOutline
+      NodeChildren
     },
 
     computed: {
-      outline () {
+      children () {
         return _.get(this.data, 'outline') || []
       },
-      // 判断有没有子节点
-      hasOutline () {
-        return this.outline.length > 0
+      hasChildren () {
+        return this.children.length > 0
       },
-      // node-outline 默认展开，如果要折叠就将 isExpanded 设置为 false
+      // node-children 默认展开，如果要折叠就将 isExpanded 设置为 false
       isExpanded () {
         return _.get(this.data, 'attributes.isExpanded') !== false
       },
       isCollapsed () {
         return !this.isExpanded
+      }
+    },
+
+    methods: {
+      updateOutline (outlineData) {
+        this.$store.dispatch('updateOutline', outlineData)
+      },
+      collapseChildren () {
+        const data = _.merge({}, this.data, {
+          attributes: {
+            isExpanded: false
+          }
+        })
+        this.updateOutline(data)
+      },
+      expandChildren () {
+        const data = _.merge({}, this.data, {
+          attributes: {
+            isExpanded: true
+          }
+        })
+        this.updateOutline(data)
       }
     }
   }
@@ -58,11 +82,11 @@
 
 <style lang="scss" scoped>
   .node {
-    > .node-outline {
+    > .node-children {
       padding-left: 18px;
     }
     &.open {
-      .node-outline {
+      .node-children {
           display: none;
       }
     }
