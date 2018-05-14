@@ -1,6 +1,7 @@
 <template>
     <div class="page index">
-        <board></board>
+        <h2>Node {{ $route.params.id }}</h2>
+        <router-view></router-view>
     </div>
 </template>
 

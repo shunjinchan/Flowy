@@ -1,5 +1,5 @@
 <template>
-    <a href=""
+    <a :href="href"
        class="bullet-button">
     </a>
 </template>
@@ -7,8 +7,11 @@
 <script>
   export default {
     name: 'bullet-button',
-    methods: {
-      handleMouseenter () {}
+    props: ['_id'],
+    computed: {
+      href () {
+        return `#/${this._id}`
+      }
     }
   }
 </script>

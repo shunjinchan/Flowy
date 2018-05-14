@@ -8,16 +8,22 @@ export default new Router({
     {
       path: '/',
       name: 'index-page',
-      component: require('@/components/IndexPage').default
+      component: require('@/components/IndexPage').default,
+      children: [
+        {
+          path: ':id',
+          component: require('@/components/IndexPage/Board').default
+        },
+        {
+          path: '',
+          component: require('@/components/IndexPage/Board').default
+        }
+      ]
     },
     {
       path: '/landing',
       name: 'landing-page',
       component: require('@/components/LandingPage').default
-    },
-    {
-      path: '*',
-      redirect: '/'
     }
   ]
 })

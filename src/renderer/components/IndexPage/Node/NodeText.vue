@@ -1,14 +1,10 @@
 <template>
-  <div class="node-text"
-       @mouseenter="handleMouseenter"
-       @mouseleave="handleMouseleave">
+  <div class="node-text">
     <collapse-button v-if="renderCollapseButton"
-                     v-show="showCollapseButton"
                      :handleClick="collapseChildren" />
     <expand-button v-if="renderExpandButton"
-                   v-show="showExpandButton"
                    :handleClick="expandChildren" />
-    <bullet-button/>
+    <bullet-button :_id="_id" />
     <text-field :text="text"
                 :editable="editable"
                 :handleKeypressEnter="handleKeypressEnter"
@@ -33,15 +29,16 @@
       return {
         showCollapseButton: false,
         showExpandButton: false,
-        editable: false,
-        text: _.get(this.data, 'attributes.text') || '',
-        _id: this.data._id
+        editable: false
       }
     },
 
     props: {
       data: {
-        type: Object
+        type: Object,
+        default () {
+          return {}
+        }
       },
       parentid: {
         type: String
@@ -73,7 +70,16 @@
       }
     },
 
-    computed: {},
+    computed: {
+      _id () {
+        return this.data._id
+      },
+      text () {
+        // 响应式：更新会将输入框的聚焦状态置换到首字符之前
+        // 不是响应式：无法响应更新，例如路由跳转后
+        return _.get(this.data, 'attributes.text') || ''
+      }
+    },
 
     components: {
       CollapseButton,
@@ -83,19 +89,8 @@
     },
 
     methods: {
-      showButton () {
-        this.showCollapseButton = true
-        this.showExpandButton = true
-      },
-      hideButton () {
-        this.showCollapseButton = false
-        this.showExpandButton = false
-      },
-      handleMouseenter () {
-        this.showButton()
-      },
-      handleMouseleave () {
-        this.hideButton()
+      addOutline (param) {
+        this.$store.dispatch('addOutline', param)
       },
       deleteOutline (param) {
         this.$store.dispatch('deleteOutline', param)
@@ -109,6 +104,14 @@
         }
         this.deleteOutline(param)
       },
+      deleteOutlineChildren (_id, parentid) {
+        this.$store.dispatch('deleteOutlineChildren', { _id, parentid })
+      },
+      // 将节点设置为其目标节点的子节点
+      moveOutlineToTargetOutline (_id, targetid) {
+        this.$store.dispatch('addOutlineChildren', { _id, targetid })
+      },
+  
       // text-field
       enableEditable () {
         this.editable = true
@@ -122,15 +125,11 @@
         })
         return data
       },
-      addOutline (param) {
-        this.$store.dispatch('addOutline', param)
+      handleTextClick () {
+        this.enableEditable()
       },
-      deleteOutlineChildren (_id, parentid) {
-        this.$store.dispatch('deleteOutlineChildren', { _id, parentid })
-      },
-      moveOutlineToTargetOutline (_id, targetid) {
-        // 更新当前节点，将该节点设置为其目标节点的子节点
-        this.$store.dispatch('addOutlineChildren', { _id, targetid })
+      handleTextInput (evt) {
+        this.updateOutline(this.updateOutlineText(evt.target.textContent))
       },
       handleKeypressEnter (evt) {
         this.disableEditable()
@@ -145,25 +144,15 @@
           this.addOutline(param)
         }
       },
-      handleTextClick () {
-        this.enableEditable()
-      },
-      handleTextInput (evt) {
-        this.updateOutline(this.updateOutlineText(evt.target.textContent))
-      },
       handleKeyupDelete (evt) {
         if (evt.target.textContent === '') {
           this.deleteCurrentOutline()
         }
       },
       handleKeydownTab (evt) {
-        console.log(this.index)
+        // 缩进节点
         // 没有文字，删除当前节点，为前一个节点增加子节点
-        if (
-          evt.target.textContent === '' &&
-          typeof this.index === 'number' &&
-          this.index > 0
-        ) {
+        if (evt.target.textContent === '' && this.index > 0) {
           this.deleteOutlineChildren(this._id, this.parentid)
           const parentid = this.previd
           const param = { parentid: parentid }
@@ -187,6 +176,12 @@
     .collapse-button, .expand-button {
       position: absolute;
       left: -20px;
+      opacity: 0;
+    }
+    &:hover {
+      .collapse-button, .expand-button {
+        opacity: 1;
+      }
     }
   }
 </style>

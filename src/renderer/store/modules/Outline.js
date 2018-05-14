@@ -88,12 +88,10 @@ const actions = {
    */
   async addOutline ({ commit, dispatch }, { parentid, previd }) {
     const parentOutlineData = await db.findOneAsync({ _id: parentid })
-
     // 父节点不为空
     if (parentOutlineData) {
       // 新增空节点
       const newOutlineData = await dispatch('insertOutline')
-
       // 更新父节点
       if (previd) {
         const index = parentOutlineData.outline.indexOf(previd)
@@ -101,7 +99,6 @@ const actions = {
       } else {
         parentOutlineData.outline.push(newOutlineData._id)
       }
-
       await dispatch('updateOutline', parentOutlineData)
       return newOutlineData
     }
