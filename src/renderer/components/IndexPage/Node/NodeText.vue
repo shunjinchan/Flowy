@@ -8,7 +8,7 @@
     <text-field :text="text"
                 :editable="editable"
                 :handleKeypressEnter="handleKeypressEnter"
-                :handleKeyupDelete="handleKeyupDelete"
+                :handleKeydownDelete="handleKeydownDelete"
                 :handleKeydownTab="handleKeydownTab"
                 :handleClick="handleTextClick"
                 :handleInput="handleTextInput" />
@@ -43,6 +43,9 @@
       parentid: {
         type: String
       },
+      previd: {
+        type: String
+      },
       index: {
         type: Number
       },
@@ -64,10 +67,8 @@
           return () => {}
         },
         require: false
-      },
-      previd: {
-        type: String
       }
+  
     },
 
     computed: {
@@ -144,19 +145,22 @@
           this.addOutline(param)
         }
       },
-      handleKeyupDelete (evt) {
+      handleKeydownDelete (evt) {
         if (evt.target.textContent === '') {
           this.deleteCurrentOutline()
         }
       },
       handleKeydownTab (evt) {
+        if (this.index < 1) return
         // 缩进节点
-        // 没有文字，删除当前节点，为前一个节点增加子节点
-        if (evt.target.textContent === '' && this.index > 0) {
+        if (evt.target.textContent === '') {
           this.deleteOutlineChildren(this._id, this.parentid)
           const parentid = this.previd
           const param = { parentid: parentid }
           this.addOutline(param)
+        } else {
+          this.deleteOutlineChildren(this._id, this.parentid)
+          this.moveOutlineToTargetOutline(this._id, this.previd)
         }
       }
     }

@@ -31,6 +31,10 @@ const mutations = {
     })
   },
 
+  insertOutline (state, data) {
+    Vue.set(state, data._id, data)
+  },
+
   /**
    * 更新节点数据
    * @param state
@@ -129,7 +133,7 @@ const actions = {
       attributes: { text: '', note: '' },
       outline: []
     })
-    commit('updateOutline', newOutlineData)
+    commit('insertOutline', newOutlineData)
     return newOutlineData
   },
 

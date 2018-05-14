@@ -75,6 +75,7 @@
 
     methods: {
       updateOutline (outlineData) {
+        console.log(outlineData)
         this.$store.dispatch('updateOutline', outlineData)
       },
       collapseChildren () {

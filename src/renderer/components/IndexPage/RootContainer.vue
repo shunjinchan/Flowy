@@ -16,7 +16,6 @@
 
     computed: {
       data () {
-        console.log(this.rootid)
         return this.$store.state.Outline[this.rootid] || {}
       }
     },
