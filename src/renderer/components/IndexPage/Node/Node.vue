@@ -8,105 +8,110 @@
                :renderExpandButton="hasChildren && isCollapsed"
                :collapseChildren="collapseChildren"
                :expandChildren="expandChildren"
-               :updateOutline="updateOutline"/>
+               :lazyUpdateOutline="lazyUpdateOutline"/>
     <node-note :data="data"
                :parentid="parentid"/>
-    <node-children v-if="hasChildren && isExpanded" e
+    <node-children v-if="hasChildren && isExpanded"
                    :data="data" />
   </section>
 </template>
 
 <script>
-  import _ from 'lodash'
-  import NodeNote from './NodeNote'
-  import NodeText from './NodeText'
-  import NodeChildren from './NodeChildren'
+import _ from 'lodash'
+import NodeNote from './NodeNote'
+import NodeText from './NodeText'
+import NodeChildren from './NodeChildren'
 
-  export default {
-    name: 'node',
+export default {
+  name: 'node',
 
-    props: {
-      data: {
-        type: Object,
-        require: true
-      },
-      parentid: {
-        type: String,
-        require: false
-      },
-      index: {
-        type: Number
-      }
+  props: {
+    data: {
+      type: Object,
+      require: true
     },
-
-    components: {
-      NodeNote,
-      NodeText,
-      NodeChildren
+    parentid: {
+      type: String,
+      require: false
     },
+    index: {
+      type: Number
+    }
+  },
 
-    computed: {
-      children () {
-        return _.get(this.data, 'outline') || []
-      },
-      previd () {
-        let previd = ''
-        if (this.parentid && this.data && this.data._id) {
-          const outline = this.$store.state.Outline[this.parentid].outline
-          const currentIndex = outline.indexOf(this.data._id)
-          // 上一个 id
-          if (currentIndex >= 1) {
-            previd = outline[currentIndex - 1]
-          }
+  components: {
+    NodeNote,
+    NodeText,
+    NodeChildren
+  },
+
+  computed: {
+    children () {
+      return _.get(this.data, 'outline') || []
+    },
+    outline () {
+      return this.$store.state.Outline[this.parentid].outline
+    },
+    currentIndex () {
+      return this.outline.indexOf(this.data._id)
+    },
+    previd () {
+      let previd = ''
+      if (this.parentid && this.data && this.data._id) {
+        if (this.currentIndex >= 1) {
+          previd = this.outline[this.currentIndex - 1]
         }
-        return previd
-      },
-      hasChildren () {
-        return this.children.length > 0
-      },
-      // node-children 默认展开，如果要折叠就将 isExpanded 设置为 false
-      isExpanded () {
-        return _.get(this.data, 'attributes.isExpanded') !== false
-      },
-      isCollapsed () {
-        return !this.isExpanded
       }
+      return previd
     },
+    hasChildren () {
+      return this.children.length > 0
+    },
+    // node-children 默认展开，如果要折叠就将 isExpanded 设置为 false
+    isExpanded () {
+      return _.get(this.data, 'attributes.isExpanded') !== false
+    },
+    isCollapsed () {
+      return !this.isExpanded
+    }
+  },
 
-    methods: {
-      updateOutline (outlineData) {
-        console.log(outlineData)
-        this.$store.dispatch('updateOutline', outlineData)
-      },
-      collapseChildren () {
-        const data = _.merge({}, this.data, {
-          attributes: {
-            isExpanded: false
-          }
-        })
-        this.updateOutline(data)
-      },
-      expandChildren () {
-        const data = _.merge({}, this.data, {
-          attributes: {
-            isExpanded: true
-          }
-        })
-        this.updateOutline(data)
-      }
+  methods: {
+    updateOutline (outlineData) {
+      this.$store.dispatch('updateOutline', outlineData)
+    },
+    lazyUpdateOutline (outlineData) {
+      this.$store.dispatch('lazyUpdateOutline', outlineData)
+    },
+    collapseChildren () {
+      const data = _.merge({}, this.data, {
+        attributes: {
+          isExpanded: false
+        }
+      })
+      this.updateOutline(data)
+    },
+    expandChildren () {
+      const data = _.merge({}, this.data, {
+        attributes: {
+          isExpanded: true
+        }
+      })
+      this.updateOutline(data)
     }
   }
+}
 </script>
 
 <style lang="scss" scoped>
-  .node {
-    > .node-children {
-      padding-left: 18px;
-    }
-    &.open {
-      .node-children {
-          display: none;
-      }
+.node {
+  > .node-children {
+    padding-left: 18px;
+  }
+  &.open {
+    .node-children {
+        display: none;
     }
   }
+}
 </style>
