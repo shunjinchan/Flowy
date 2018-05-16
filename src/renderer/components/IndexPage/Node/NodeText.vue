@@ -29,7 +29,7 @@ export default {
     return {
       showCollapseButton: false,
       showExpandButton: false,
-      editable: false
+      editable: true
     }
   },
 
@@ -67,8 +67,14 @@ export default {
         return () => {}
       },
       require: false
+    },
+    updateOutline: {
+      type: Function,
+      default () {
+        return () => {}
+      },
+      require: false
     }
-
   },
 
   computed: {
@@ -99,10 +105,7 @@ export default {
     deleteCurrentOutline () {
       const parentid = this.parentid
       const _id = this._id
-      const param = {
-        parentid: parentid,
-        _id: _id
-      }
+      const param = { parentid: parentid, _id: _id }
       this.deleteOutline(param)
     },
     deleteOutlineChildren (_id, parentid) {
@@ -133,17 +136,23 @@ export default {
       this.lazyUpdateOutline(this.updateOutlineText(evt.target.textContent))
     },
     handleKeypressEnter (evt) {
-      this.disableEditable()
-      // 没有文字，将该节点层级往上推上一层，设置为其父节点的下一个节点
-      if (evt.target.textContent === '') {
-        console.log('kkk')
-      } else { // 有文字，更新该节点，并且添加一个新的节点
+      const indentLeft = () => {
+        // 将该节点从父节点的子节点数组中移除
+        this.deleteOutlineChildren(this._id, this.parentid)
+        // 将该节点添加到前一个节点的子节点数组中
+        this.moveOutlineToTargetOutline(this._id, this.previd)
+      }
+      // 更新该节点，并为父节点添加一个新的子节点
+      const updateOutline = () => {
         this.lazyUpdateOutline(this.updateOutlineText(evt.target.textContent))
         const parentid = this.parentid
         const _id = this._id
-        const param = { parentid: parentid, previd: _id }
-        this.addOutline(param)
+        this.addOutline({ parentid: parentid, previd: _id })
       }
+
+      this.disableEditable()
+      if (evt.target.textContent === '') indentLeft()
+      else updateOutline()
     },
     handleKeydownDelete (evt) {
       if (evt.target.textContent === '') {
@@ -152,16 +161,17 @@ export default {
     },
     handleKeydownTab (evt) {
       if (this.index < 1) return
-      // 缩进节点
-      if (evt.target.textContent === '') {
+
+      const indentRight = () => {
+        // 将该节点从父节点的子节点数组中移除
         this.deleteOutlineChildren(this._id, this.parentid)
-        const parentid = this.previd
-        const param = { parentid: parentid }
-        this.addOutline(param)
-      } else {
-        this.deleteOutlineChildren(this._id, this.parentid)
+        // 将该节点添加到前一个节点的子节点数组中
         this.moveOutlineToTargetOutline(this._id, this.previd)
       }
+
+      // 缩进节点
+      indentRight()
+      this.updateOutline(this.updateOutlineText(evt.target.textContent))
     }
   }
 }

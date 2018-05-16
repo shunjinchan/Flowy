@@ -8,7 +8,7 @@
                :renderExpandButton="hasChildren && isCollapsed"
                :collapseChildren="collapseChildren"
                :expandChildren="expandChildren"
-               :lazyUpdateOutline="lazyUpdateOutline"/>
+               :lazyUpdateOutline="lazyUpdateOutline" :updateOutline="updateOutline"/>
     <node-note :data="data"
                :parentid="parentid"/>
     <node-children v-if="hasChildren && isExpanded"
@@ -28,7 +28,10 @@ export default {
   props: {
     data: {
       type: Object,
-      require: true
+      require: true,
+      default () {
+        return {}
+      }
     },
     parentid: {
       type: String,
@@ -57,10 +60,12 @@ export default {
     },
     previd () {
       let previd = ''
-      if (this.parentid && this.data && this.data._id) {
-        if (this.currentIndex >= 1) {
-          previd = this.outline[this.currentIndex - 1]
-        }
+      if (
+        this.parentid &&
+        this.data._id &&
+        this.currentIndex >= 1
+      ) {
+        previd = this.outline[this.currentIndex - 1]
       }
       return previd
     },
@@ -85,17 +90,13 @@ export default {
     },
     collapseChildren () {
       const data = _.merge({}, this.data, {
-        attributes: {
-          isExpanded: false
-        }
+        attributes: { isExpanded: false }
       })
       this.updateOutline(data)
     },
     expandChildren () {
       const data = _.merge({}, this.data, {
-        attributes: {
-          isExpanded: true
-        }
+        attributes: { isExpanded: true }
       })
       this.updateOutline(data)
     }

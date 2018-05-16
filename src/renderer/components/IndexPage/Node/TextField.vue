@@ -1,13 +1,14 @@
 <template>
     <div class="text-field"
+         contenteditable
          ref="input"
          v-text="text"
-         :contenteditable="editable"
          @click="handleClick"
          @input="handleInput"
          @keypress.enter.prevent="handleKeypressEnter"
          @keydown.delete="handleKeydownDelete"
-         @keydown.tab.prevent="handleKeydownTab">
+         @keydown.tab.prevent="handleKeydownTab" 
+         @focus="handleFocus">
     </div>
 </template>
 
@@ -22,7 +23,7 @@
       },
       editable: {
         type: Boolean,
-        default: false
+        default: true
       },
       handleKeypressEnter: {
         type: Function,
@@ -59,6 +60,16 @@
         },
         require: false
       }
+    },
+
+    methods: {
+      handleFocus () {
+        console.log('focus')
+      }
+    },
+
+    mounted () {
+      this.$refs.input.focus()
     }
   }
 </script>
