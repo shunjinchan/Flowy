@@ -8,9 +8,10 @@
                :renderExpandButton="hasChildren && isCollapsed"
                :collapseChildren="collapseChildren"
                :expandChildren="expandChildren"
-               :lazyUpdateOutline="lazyUpdateOutline" :updateOutline="updateOutline"/>
+               :lazyUpdateOutline="lazyUpdateOutline" :updateOutline="updateOutline" 
+               :currentOutlineid="currentOutlineid" />
     <node-note :data="data"
-               :parentid="parentid"/>
+               :parentid="parentid" />
     <node-children v-if="hasChildren && isExpanded"
                    :data="data" />
   </section>
@@ -54,6 +55,9 @@ export default {
     },
     outline () {
       return this.$store.state.Outline[this.parentid].outline
+    },
+    currentOutlineid () {
+      return this.$store.state.Outline.currentOutlineid
     },
     currentIndex () {
       return this.outline.indexOf(this.data._id)

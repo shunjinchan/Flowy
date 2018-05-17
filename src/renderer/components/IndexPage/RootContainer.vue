@@ -22,7 +22,7 @@
 
     render (h) {
       return (
-        <root data={this.data} />
+        <root data={this.data} key={this.data._id} />
       )
     },
 

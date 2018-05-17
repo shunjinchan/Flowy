@@ -6,11 +6,11 @@
                    :handleClick="expandChildren" />
     <bullet-button :_id="_id" />
     <text-field :text="text"
-                :editable="editable"
                 :handleKeypressEnter="handleKeypressEnter"
                 :handleKeydownDelete="handleKeydownDelete"
                 :handleKeydownTab="handleKeydownTab"
                 :handleClick="handleTextClick"
+                :handleFocus="handleTextFocus"
                 :handleInput="handleTextInput" />
   </div>
 </template>
@@ -74,6 +74,9 @@ export default {
         return () => {}
       },
       require: false
+    },
+    currentOutlineid: {
+      type: String
     }
   },
 
@@ -85,6 +88,9 @@ export default {
       // 响应式：更新会将输入框的聚焦状态置换到首字符之前
       // 不是响应式：无法响应更新，例如路由跳转后
       return _.get(this.data, 'attributes.text') || ''
+    },
+    focus () {
+      return this.currentOutlineid === this._id
     }
   },
 
@@ -117,31 +123,24 @@ export default {
     },
 
     // text-field
-    enableEditable () {
-      this.editable = true
-    },
-    disableEditable () {
-      this.editable = false
-    },
     updateOutlineText (text) {
       const data = _.merge({}, this.data, {
         attributes: { text: text }
       })
       return data
     },
-    handleTextClick () {
-      this.enableEditable()
-    },
+    handleTextClick () {},
+    handleTextFocus (evt) {},
     handleTextInput (evt) {
       this.lazyUpdateOutline(this.updateOutlineText(evt.target.textContent))
     },
     handleKeypressEnter (evt) {
-      const indentLeft = () => {
-        // 将该节点从父节点的子节点数组中移除
-        this.deleteOutlineChildren(this._id, this.parentid)
-        // 将该节点添加到前一个节点的子节点数组中
-        this.moveOutlineToTargetOutline(this._id, this.previd)
-      }
+      // const indentLeft = () => {
+      //   // 将该节点从父节点的子节点数组中移除
+      //   this.deleteOutlineChildren(this._id, this.parentid)
+      //   // 将该节点添加到前一个节点的子节点数组中
+      //   this.moveOutlineToTargetOutline(this._id, this.previd)
+      // }
       // 更新该节点，并为父节点添加一个新的子节点
       const updateOutline = () => {
         this.lazyUpdateOutline(this.updateOutlineText(evt.target.textContent))
@@ -150,9 +149,11 @@ export default {
         this.addOutline({ parentid: parentid, previd: _id })
       }
 
-      this.disableEditable()
-      if (evt.target.textContent === '') indentLeft()
-      else updateOutline()
+      if (evt.target.textContent === '') {
+        // indentLeft()
+      } else {
+        updateOutline()
+      }
     },
     handleKeydownDelete (evt) {
       if (evt.target.textContent === '') {

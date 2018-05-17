@@ -21,10 +21,6 @@
         type: String,
         default: ''
       },
-      editable: {
-        type: Boolean,
-        default: true
-      },
       handleKeypressEnter: {
         type: Function,
         default () {
@@ -59,16 +55,18 @@
           return () => {}
         },
         require: false
-      }
-    },
-
-    methods: {
-      handleFocus () {
-        console.log('focus')
+      },
+      handleFocus: {
+        type: Function,
+        default () {
+          return () => {}
+        },
+        require: false
       }
     },
 
     mounted () {
+      console.log('mount')
       this.$refs.input.focus()
     }
   }
