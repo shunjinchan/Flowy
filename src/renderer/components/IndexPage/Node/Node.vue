@@ -4,6 +4,8 @@
                :parentid="parentid"
                :previd="previd"
                :index="index"
+               :grandparentid="grandparentid"
+               :isCollapsed="isCollapsed"
                :renderCollapseButton="hasChildren && isExpanded"
                :renderExpandButton="hasChildren && isCollapsed"
                :collapseChildren="collapseChildren"
@@ -13,7 +15,8 @@
     <node-note :data="data"
                :parentid="parentid" />
     <node-children v-if="hasChildren && isExpanded"
-                   :data="data" />
+                   :data="data"
+                   :parentid="parentid" />
   </section>
 </template>
 
@@ -40,6 +43,9 @@ export default {
     },
     index: {
       type: Number
+    },
+    grandparentid: {
+      type: String
     }
   },
 

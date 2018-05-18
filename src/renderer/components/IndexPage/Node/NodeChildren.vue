@@ -8,6 +8,9 @@
     props: {
       data: {
         type: Object // 父组件的 _id 将成为子组件的 parentid
+      },
+      parentid: {
+        type: String
       }
     },
 
@@ -31,7 +34,7 @@
       const ele = this.children.map((item, index) => {
         const data = this.$store.state.Outline[item] || {}
         return (
-          <Node data={data} index={index} parentid={this.data._id} key={data._id} />
+          <Node data={data} index={index} parentid={this.data._id} grandparentid={this.parentid} key={data._id} />
         )
       })
 
