@@ -10,4 +10,10 @@
   }
 </script>
 
-<style lang="scss"></style>
+<style lang="scss">
+a {
+  &:hover {
+    cursor: pointer;
+  }
+}
+</style>

@@ -1,5 +1,5 @@
 <template>
-  <crumb :crumb="crumb" />
+  <crumb :crumbList="crumbList" />
 </template>
 
 <script>
@@ -12,6 +12,17 @@ export default {
   computed: {
     crumb () {
       return this.$store.state.Crumb
+    },
+    crumbList () {
+      const list = []
+      const getCrumbList = (_id) => {
+        const outline = this.$store.getters.getOutline(_id)
+        list.unshift(outline)
+        if (outline && outline.parentid) getCrumbList(outline.parentid)
+      }
+      getCrumbList(this.crumb.current)
+      console.log(list)
+      return list
     }
   }
 }

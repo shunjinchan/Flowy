@@ -118,12 +118,18 @@ export default {
       return numRemoved
     },
     async deleteOutlineChildren (_id, parentid) {
-      const parentOutlineData = await this.$store.dispatch('deleteOutlineChildren', { _id, parentid })
+      const parentOutlineData = await this.$store.dispatch(
+        'deleteOutlineChildren',
+        { _id, parentid }
+      )
       return parentOutlineData
     },
     // 将节点设置为其目标节点的子节点
     async moveOutlineToTargetOutline (_id, targetid) {
-      const targetOutlineData = await this.$store.dispatch('addOutlineChildren', { _id, targetid })
+      const targetOutlineData = await this.$store.dispatch(
+        'addOutlineChildren',
+        { _id, targetid }
+      )
       return targetOutlineData
     },
 

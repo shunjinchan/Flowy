@@ -93,7 +93,9 @@ export default {
 
   methods: {
     async updateOutline (outlineData) {
-      const affectedDocuments = await this.$store.dispatch('updateOutline', outlineData)
+      const affectedDocuments = await this.$store.dispatch(
+        'updateOutline', outlineData
+      )
       return affectedDocuments
     },
     lazyUpdateOutline (outlineData) {
