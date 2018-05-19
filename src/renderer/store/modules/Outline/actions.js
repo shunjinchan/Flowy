@@ -26,7 +26,7 @@ export default {
     const parentOutlineData = await db.findOneAsync({ _id: parentid })
 
     if (parentOutlineData) {
-      const newOutlineData = await dispatch('insertOutline')
+      const newOutlineData = await dispatch('insertOutline', { parentid })
 
       // 更新父节点
       if (previd) {
@@ -62,10 +62,11 @@ export default {
    * @param data
    * @returns {Promise<object>}
    */
-  async insertOutline ({ commit }) {
+  async insertOutline ({ commit }, { parentid }) {
     const newOutlineData = await db.insertAsync({
       attributes: { text: '', note: '' },
-      outline: []
+      outline: [],
+      parentid: parentid
     })
     commit('insertOutline', newOutlineData)
     return newOutlineData

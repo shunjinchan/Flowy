@@ -16,7 +16,7 @@
 
     computed: {
       data () {
-        return this.$store.state.Outline[this.rootid] || {}
+        return this.$store.getters.getOutline(this.rootid) || {}
       }
     },
 

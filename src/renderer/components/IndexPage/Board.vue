@@ -1,7 +1,7 @@
 <template>
     <main class="board">
         <empty-all-outline />
-        <crumb />
+        <crumb-container />
         <article className="outline">
             <root-container />
         </article>
@@ -9,7 +9,7 @@
 </template>
 
 <script>
-  import Crumb from './Crumb'
+  import CrumbContainer from './CrumbContainer'
   import RootContainer from './RootContainer'
   import EmptyAllOutline from './EmptyAllOutline'
 
@@ -17,7 +17,7 @@
     name: 'board',
     components: {
       RootContainer,
-      Crumb,
+      CrumbContainer,
       EmptyAllOutline
     }
   }

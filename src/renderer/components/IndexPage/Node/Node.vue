@@ -60,10 +60,10 @@ export default {
       return _.get(this.data, 'outline') || []
     },
     outline () {
-      return this.$store.state.Outline[this.parentid].outline
+      return this.$store.getters.getOutline(this.parentid).outline
     },
     currentOutlineid () {
-      return this.$store.state.Outline.currentOutlineid
+      return this.$store.getters.currentOutlineid
     },
     currentIndex () {
       return this.outline.indexOf(this.data._id)
@@ -92,8 +92,9 @@ export default {
   },
 
   methods: {
-    updateOutline (outlineData) {
-      this.$store.dispatch('updateOutline', outlineData)
+    async updateOutline (outlineData) {
+      const affectedDocuments = await this.$store.dispatch('updateOutline', outlineData)
+      return affectedDocuments
     },
     lazyUpdateOutline (outlineData) {
       this.$store.dispatch('lazyUpdateOutline', outlineData)

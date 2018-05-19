@@ -1,5 +1,11 @@
 export default {
-  getRoot (state) {
-    return state.root
+  getOutline: (state) => {
+    return (id) => {
+      return state[id]
+    }
+  },
+
+  currentOutlineid (state) {
+    return state.currentOutlineid
   }
 }

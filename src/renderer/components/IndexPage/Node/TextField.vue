@@ -65,9 +65,20 @@
       }
     },
 
+    methods: {
+      collapseToEnd () {
+        const selection = getSelection()
+        selection.selectAllChildren(this.$refs.input)
+        selection.collapseToEnd()
+      },
+      focus () {
+        this.$refs.input.focus()
+      }
+    },
+
     mounted () {
-      console.log('mount')
-      this.$refs.input.focus()
+      this.focus()
+      this.collapseToEnd()
     }
   }
 </script>

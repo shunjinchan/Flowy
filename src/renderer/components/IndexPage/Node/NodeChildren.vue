@@ -32,7 +32,7 @@
       if (!this.hasChildren) return
 
       const ele = this.children.map((item, index) => {
-        const data = this.$store.state.Outline[item] || {}
+        const data = this.$store.getters.getOutline(item) || {}
         return (
           <Node data={data} index={index} parentid={this.data._id} grandparentid={this.parentid} key={data._id} />
         )
