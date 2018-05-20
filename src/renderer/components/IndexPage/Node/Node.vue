@@ -59,14 +59,18 @@ export default {
     children () {
       return _.get(this.data, 'outline') || []
     },
-    outline () {
-      return this.$store.getters.getOutline(this.parentid).outline
+    parentOutline () {
+      if (this.parentid) {
+        return this.$store.getters.getOutline(this.parentid).outline
+      } else {
+        return [this.data._id]
+      }
     },
     currentOutlineid () {
-      return this.$store.getters.currentOutlineid
+      return this.$store.getters.currentOutlineid || ''
     },
     currentIndex () {
-      return this.outline.indexOf(this.data._id)
+      return this.parentOutline.indexOf(this.data._id)
     },
     previd () {
       let previd = ''
@@ -75,7 +79,7 @@ export default {
         this.data._id &&
         this.currentIndex >= 1
       ) {
-        previd = this.outline[this.currentIndex - 1]
+        previd = this.parentOutline[this.currentIndex - 1]
       }
       return previd
     },

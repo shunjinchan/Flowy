@@ -21,7 +21,6 @@ export default {
         if (outline && outline.parentid) getCrumbList(outline.parentid)
       }
       getCrumbList(this.crumb.current)
-      console.log(list)
       return list
     }
   }
