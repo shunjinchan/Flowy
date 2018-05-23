@@ -1,6 +1,6 @@
 <template>
     <main class="board">
-        <empty-all-outline />
+        <command-container />
         <crumb-container />
         <article className="outline">
             <root-container />
@@ -11,14 +11,14 @@
 <script>
   import CrumbContainer from './CrumbContainer'
   import RootContainer from './RootContainer'
-  import EmptyAllOutline from './EmptyAllOutline'
+  import CommandContainer from './CommandContainer'
 
   export default {
     name: 'board',
     components: {
       RootContainer,
       CrumbContainer,
-      EmptyAllOutline
+      CommandContainer
     }
   }
 </script>
