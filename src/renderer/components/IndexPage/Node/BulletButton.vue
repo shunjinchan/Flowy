@@ -1,25 +1,25 @@
 <template>
     <a class="bullet-button" 
-       :class="{collapse: isCollapsed}"
+       :class="{ collapse: isCollapsed }"
        @click.prevent="handleClick">
     </a>
 </template>
 
 <script>
-  export default {
-    name: 'bullet-button',
-    props: {
-      isCollapsed: {
-        type: Boolean
-      },
-      handleClick: {
-        type: Function,
-        default () {
-          return () => {}
-        }
+export default {
+  name: 'bullet-button',
+  props: {
+    isCollapsed: {
+      type: Boolean
+    },
+    handleClick: {
+      type: Function,
+      default () {
+        return () => {}
       }
     }
   }
+}
 </script>
 
 <style lang="scss" scoped>

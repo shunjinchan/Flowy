@@ -63,7 +63,6 @@
     "devtron": "^1.4.0",
     "electron": "^1.7.5",
     "electron-debug": "^1.4.0",
-    "electron-devtools-installer": "^2.2.0",
     "electron-packager": "^8.5.0",
     "electron-rebuild": "^1.1.3",
     "eslint": "^4.4.1",

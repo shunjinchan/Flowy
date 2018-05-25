@@ -9,18 +9,18 @@
 </template>
 
 <script>
-  import CrumbContainer from './CrumbContainer'
-  import RootContainer from './RootContainer'
-  import CommandContainer from './CommandContainer'
+import CrumbContainer from './CrumbContainer'
+import RootContainer from './RootContainer'
+import CommandContainer from './CommandContainer'
 
-  export default {
-    name: 'board',
-    components: {
-      RootContainer,
-      CrumbContainer,
-      CommandContainer
-    }
+export default {
+  name: 'board',
+  components: {
+    RootContainer,
+    CrumbContainer,
+    CommandContainer
   }
+}
 </script>
 
 <style lang="scss" scoped>
