@@ -9,18 +9,18 @@
 </template>
 
 <script>
-  export default {
-    name: 'expand-button',
-    props: {
-      handleClick: {
-        type: Function,
-        default () {
-          return () => {}
-        },
-        require: false
-      }
+export default {
+  name: 'expand-button',
+  props: {
+    handleClick: {
+      type: Function,
+      default () {
+        return () => {}
+      },
+      require: false
     }
   }
+}
 </script>
 
 <style lang="scss" scoped>

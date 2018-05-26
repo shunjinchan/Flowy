@@ -1,10 +1,10 @@
 <script>
-  import Node from './Node/Node'
+import Node from './Node/Node'
 
-  export default {
-    name: 'root',
-    mixins: [Node]
-  }
+export default {
+  name: 'root',
+  mixins: [Node]
+}
 </script>
 
 <style lang="scss" scoped>

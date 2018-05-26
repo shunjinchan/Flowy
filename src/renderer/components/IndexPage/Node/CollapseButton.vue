@@ -8,18 +8,18 @@
 </template>
 
 <script>
-  export default {
-    name: 'collapse-button',
-    props: {
-      handleClick: {
-        type: Function,
-        default () {
-          return () => {}
-        },
-        require: false
-      }
+export default {
+  name: 'collapse-button',
+  props: {
+    handleClick: {
+      type: Function,
+      default () {
+        return () => {}
+      },
+      require: false
     }
   }
+}
 </script>
 
 <style lang="scss" scoped>

@@ -113,10 +113,12 @@ export default {
       const newOutlineData = await this.$store.dispatch('addOutline', param)
       return newOutlineData
     },
+
     async deleteOutline (param) {
       const numRemoved = await this.$store.dispatch('deleteOutline', param)
       return numRemoved
     },
+
     async deleteOutlineChildren (_id, parentid) {
       const parentOutlineData = await this.$store.dispatch(
         'deleteOutlineChildren',
@@ -124,6 +126,7 @@ export default {
       )
       return parentOutlineData
     },
+
     // 将节点设置为其目标节点的子节点
     async moveOutlineToTargetOutline (_id, targetid) {
       const targetOutlineData = await this.$store.dispatch(
@@ -146,23 +149,29 @@ export default {
       const param = { parentid: parentid, _id: _id }
       this.deleteOutline(param)
     },
+
     updateOutlineText (text) {
       const data = _.merge({}, this.data, {
         attributes: { text: text }
       })
       return data
     },
+
     updateOutlineParentid (_id) {
       const data = _.merge({}, this.data, {
         parentid: _id
       })
       return data
     },
+
     handleTextClick (evt) {},
+
     handleTextFocus (evt) {},
-    handleTextInput (evt) {
-      this.lazyUpdateOutline(this.updateOutlineText(evt.target.textContent))
+
+    handleTextInput (text) {
+      this.lazyUpdateOutline(this.updateOutlineText(text))
     },
+
     async handleKeypressEnter (evt) {
       // 更新该节点，并为父节点添加一个新的子节点
       const updateOutline = () => {
@@ -184,11 +193,13 @@ export default {
         updateOutline()
       }
     },
+
     handleKeydownDelete (evt) {
       if (evt.target.textContent === '') {
         this.deleteCurrentOutline()
       }
     },
+
     async handleKeydownTab (evt) {
       if (this.index < 1) return
 
@@ -212,7 +223,6 @@ export default {
   position: relative;
   .text-field {
     flex-grow: 1;
-    outline: none;
   }
   .collapse-button, .expand-button {
     position: absolute;
