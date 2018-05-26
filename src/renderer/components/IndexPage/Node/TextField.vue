@@ -72,9 +72,11 @@
         selection.selectAllChildren(this.$refs.input)
         selection.collapseToEnd()
       },
+
       focus () {
         this.$refs.input.focus()
       },
+  
       observe () {
         this.$fromDOMEvent('.input', 'input')
           .debounceTime(500)

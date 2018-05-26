@@ -1,12 +1,15 @@
 <template>
   <section class="crumb">
     <ul>
-      <li v-for="(crumb, index) in crumbList" :key="index">
-          <a @click.prevent="handleClick(crumb._id)">
-            {{ crumb.attributes.text }}
-          </a>
-        <i></i>
-      </li>
+      <template v-for="(crumb, index) in crumbList">
+        <li :key="index" v-if="crumb.attributes && crumb._id">
+            <a @click.prevent="handleClick(crumb._id)">
+              {{ crumb.attributes.text }}
+            </a>
+          <i></i>
+        </li>
+      </template>
+      
     </ul>
   </section>
 </template>
@@ -27,6 +30,9 @@ export default {
       this.$router.push({ path: _id })
       this.$store.dispatch('updateCrumb', _id)
     }
+  },
+  mounted () {
+    console.log(this.crumbList)
   }
 }
 </script>

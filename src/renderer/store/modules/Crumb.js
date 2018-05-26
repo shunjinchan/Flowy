@@ -5,6 +5,9 @@ const state = {
 const mutations = {
   updateCrumb (state, _id) {
     state.current = _id
+  },
+  emptyCrumb (state) {
+    state.current = 'root'
   }
 }
 

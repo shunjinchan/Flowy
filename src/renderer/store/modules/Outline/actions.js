@@ -8,10 +8,23 @@ export default {
    * @returns {Promise<object>}
    */
   async initRootOutline ({ commit, state }) {
-    let data = await db.findOneAsync({ _id: 'root' })
-    // 数据库为空代表首次访问，更新数据库
-    if (_.isEmpty(data)) data = await db.insertAsync(state.root)
-    commit('updateOutline', data)
+    let data = null
+
+    try {
+      data = await db.findOneAsync({ _id: 'root' })
+      // 数据库为空代表首次访问，更新数据库
+      if (_.isEmpty(data)) {
+        data = await db.insertAsync({
+          _id: 'root',
+          attributes: { text: 'Home', note: '' },
+          outline: []
+        })
+      }
+      commit('updateOutline', data)
+    } catch (error) {
+      data = {}
+    }
+
     return data
   },
 
@@ -62,7 +75,7 @@ export default {
    * @param data
    * @returns {Promise<object>}
    */
-  async insertOutline ({ commit }, { parentid }) {
+  async insertOutline ({ commit }, { _id = '', parentid = '' }) {
     const newOutlineData = await db.insertAsync({
       attributes: { text: '', note: '' },
       outline: [],
@@ -90,11 +103,9 @@ export default {
    */
   async emptyAllOutline ({ commit, dispatch }) {
     const numRemoved = await db.removeAsync({}, { multi: true })
-
     commit('emptyAllOutline')
     await dispatch('initRootOutline')
     await dispatch('addOutline', { parentid: 'root' })
-
     return numRemoved
   },
 

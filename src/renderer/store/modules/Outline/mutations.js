@@ -42,8 +42,10 @@ export default {
    * @param state
    */
   emptyAllOutline (state) {
-    for (let key in state) {
-      key !== 'root' && (state.key = null)
+    for (const key in state) {
+      if (state.hasOwnProperty(key)) {
+        if (key !== 'root') state[key] = null
+      }
     }
   }
 }

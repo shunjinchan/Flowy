@@ -1,4 +1,5 @@
 <script>
+import _ from 'lodash'
 import Root from './Root'
 
 export default {
@@ -33,36 +34,27 @@ export default {
   },
 
   methods: {
-    /**
-     * 添加节点
-     * @param params
-     * @returns {Promise<void>}
-     */
-    async addOutline (params) {
-      this.$store.dispatch('addOutline', params)
-    },
-
     async initRootOutline () {
-      await this.$store.dispatch('initRootOutline')
-      await this.$store.dispatch('getAllOutline')
+      const rootOutline = await this.$store.dispatch('initRootOutline')
+      const allOutline = await this.$store.dispatch('getAllOutline')
+      if (_.isEmpty(rootOutline) || _.isEmpty(allOutline)) return
       if (!this.data.outline || this.data.outline.length === 0) {
-        this.addOutline({
-          parentid: 'root'
-        })
+        await this.$store.dispatch('addOutline', { parentid: 'root' })
       }
     },
 
     async initFakeRootOutline (_id) {
-      await this.$store.dispatch('getAllOutline')
+      const allOutline = await this.$store.dispatch('getAllOutline')
+      if (_.isEmpty(allOutline)) return
       this.rootid = _id
     }
   },
 
-  mounted () {
+  async mounted () {
     if (this.rootid === 'root') {
-      this.initRootOutline()
+      await this.initRootOutline()
     } else {
-      this.initFakeRootOutline(this.rootid)
+      await this.initFakeRootOutline(this.rootid)
     }
   }
 }

@@ -13,8 +13,9 @@ export default {
     }
   },
   methods: {
-    emptyAllOutline () {
-      this.$store.dispatch('emptyAllOutline')
+    async emptyAllOutline () {
+      await this.$store.dispatch('emptyAllOutline')
+      this.$store.commit('emptyCrumb')
     }
   }
 }

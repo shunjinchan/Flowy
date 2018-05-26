@@ -11,7 +11,7 @@ export default {
   },
   computed: {
     crumb () {
-      return this.$store.state.Crumb
+      return this.$store.state.Crumb || { current: 'root' }
     },
     crumbList () {
       const list = []

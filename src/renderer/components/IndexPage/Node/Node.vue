@@ -59,6 +59,7 @@ export default {
     children () {
       return _.get(this.data, 'outline') || []
     },
+
     parentOutline () {
       if (this.parentid) {
         return this.$store.getters.getOutline(this.parentid).outline
@@ -66,12 +67,15 @@ export default {
         return [this.data._id]
       }
     },
+
     currentOutlineid () {
       return this.$store.getters.currentOutlineid || ''
     },
+
     currentIndex () {
       return this.parentOutline.indexOf(this.data._id)
     },
+
     previd () {
       let previd = ''
       if (
@@ -83,13 +87,16 @@ export default {
       }
       return previd
     },
+
     hasChildren () {
       return this.children.length > 0
     },
+
     // node-children 默认展开，如果要折叠就将 isExpanded 设置为 false
     isExpanded () {
       return _.get(this.data, 'attributes.isExpanded') !== false
     },
+
     isCollapsed () {
       return !this.isExpanded
     }
@@ -102,15 +109,21 @@ export default {
       )
       return affectedDocuments
     },
-    lazyUpdateOutline (outlineData) {
-      this.$store.dispatch('lazyUpdateOutline', outlineData)
+
+    async lazyUpdateOutline (outlineData) {
+      const affectedDocuments = await this.$store.dispatch(
+        'lazyUpdateOutline', outlineData
+      )
+      return affectedDocuments
     },
+
     collapseChildren () {
       const data = _.merge({}, this.data, {
         attributes: { isExpanded: false }
       })
       this.updateOutline(data)
     },
+
     expandChildren () {
       const data = _.merge({}, this.data, {
         attributes: { isExpanded: true }
