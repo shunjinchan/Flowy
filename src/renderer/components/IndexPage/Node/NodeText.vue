@@ -35,7 +35,7 @@ export default {
   },
 
   props: {
-    data: {
+    nodeData: {
       type: Object,
       default () {
         return {}
@@ -89,12 +89,12 @@ export default {
 
   computed: {
     _id () {
-      return this.data._id
+      return this.nodeData._id
     },
     text () {
       // 响应式：更新会将输入框的聚焦状态置换到首字符之前
       // 不是响应式：无法响应更新，例如路由跳转后
-      return _.get(this.data, 'attributes.text') || ''
+      return _.get(this.nodeData, 'attributes.text') || ''
     },
     focus () {
       return this.currentOutlineid === this._id
@@ -151,14 +151,14 @@ export default {
     },
 
     updateOutlineText (text) {
-      const data = _.merge({}, this.data, {
+      const data = _.merge({}, this.nodeData, {
         attributes: { text: text }
       })
       return data
     },
 
     updateOutlineParentid (_id) {
-      const data = _.merge({}, this.data, {
+      const data = _.merge({}, this.nodeData, {
         parentid: _id
       })
       return data

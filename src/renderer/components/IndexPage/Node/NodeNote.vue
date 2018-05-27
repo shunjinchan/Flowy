@@ -8,7 +8,7 @@
   export default {
     name: 'node-note',
     props: {
-      data: {
+      nodeData: {
         type: Object
       },
       parentid: {
@@ -17,7 +17,7 @@
     },
     computed: {
       note () {
-        return _.get(this.data, 'attributes.note')
+        return _.get(this.nodeData, 'attributes.note')
       }
     }
   }

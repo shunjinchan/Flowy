@@ -16,14 +16,14 @@ export default {
   },
 
   computed: {
-    data () {
+    rootData () {
       return this.$store.getters.getOutline(this.rootid) || {}
     }
   },
 
   render (h) {
     return (
-      <root data={this.data} key={this.data._id} />
+      <root nodeData={this.rootData} key={this.rootData._id} />
     )
   },
 
@@ -38,7 +38,7 @@ export default {
       const rootOutline = await this.$store.dispatch('initRootOutline')
       const allOutline = await this.$store.dispatch('getAllOutline')
       if (_.isEmpty(rootOutline) || _.isEmpty(allOutline)) return
-      if (!this.data.outline || this.data.outline.length === 0) {
+      if (!this.rootData.outline || this.rootData.outline.length === 0) {
         await this.$store.dispatch('addOutline', { parentid: 'root' })
       }
     },

@@ -1,6 +1,6 @@
 <template>
   <section class="node">
-    <node-text :data="data"
+    <node-text :nodeData="nodeData"
                :parentid="parentid"
                :previd="previd"
                :index="index"
@@ -12,10 +12,10 @@
                :expandChildren="expandChildren"
                :lazyUpdateOutline="lazyUpdateOutline" :updateOutline="updateOutline" 
                :currentOutlineid="currentOutlineid" />
-    <node-note :data="data"
+    <node-note :nodeData="nodeData"
                :parentid="parentid" />
     <node-children v-if="hasChildren && isExpanded"
-                   :data="data"
+                   :nodeData="nodeData"
                    :parentid="parentid" />
   </section>
 </template>
@@ -30,7 +30,7 @@ export default {
   name: 'node',
 
   props: {
-    data: {
+    nodeData: {
       type: Object,
       require: true,
       default () {
@@ -57,14 +57,14 @@ export default {
 
   computed: {
     children () {
-      return _.get(this.data, 'outline') || []
+      return _.get(this.nodeData, 'outline') || []
     },
 
     parentOutline () {
       if (this.parentid) {
         return this.$store.getters.getOutline(this.parentid).outline
       } else {
-        return [this.data._id]
+        return [this.nodeData._id]
       }
     },
 
@@ -73,14 +73,14 @@ export default {
     },
 
     currentIndex () {
-      return this.parentOutline.indexOf(this.data._id)
+      return this.parentOutline.indexOf(this.nodeData._id)
     },
 
     previd () {
       let previd = ''
       if (
         this.parentid &&
-        this.data._id &&
+        this.nodeData._id &&
         this.currentIndex >= 1
       ) {
         previd = this.parentOutline[this.currentIndex - 1]
@@ -94,7 +94,7 @@ export default {
 
     // node-children 默认展开，如果要折叠就将 isExpanded 设置为 false
     isExpanded () {
-      return _.get(this.data, 'attributes.isExpanded') !== false
+      return _.get(this.nodeData, 'attributes.isExpanded') !== false
     },
 
     isCollapsed () {
@@ -118,14 +118,14 @@ export default {
     },
 
     collapseChildren () {
-      const data = _.merge({}, this.data, {
+      const data = _.merge({}, this.nodeData, {
         attributes: { isExpanded: false }
       })
       this.updateOutline(data)
     },
 
     expandChildren () {
-      const data = _.merge({}, this.data, {
+      const data = _.merge({}, this.nodeData, {
         attributes: { isExpanded: true }
       })
       this.updateOutline(data)

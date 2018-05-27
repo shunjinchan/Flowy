@@ -6,17 +6,17 @@
     name: 'node-children',
 
     props: {
-      data: {
+      nodeData: {
         type: Object // 父组件的 _id 将成为子组件的 parentid
       },
       parentid: {
-        type: String
+        type: String // 父组件的 parentid 将成为子组件的 grandparentid
       }
     },
 
     computed: {
       children () {
-        const outline = _.get(this.data, 'outline')
+        const outline = _.get(this.nodeData, 'outline')
         return outline || []
       },
       hasChildren () {
@@ -31,10 +31,12 @@
     render (h) {
       if (!this.hasChildren) return
 
+      const parentid = this.nodeData._id
+      const grandparentid = this.parentid
       const ele = this.children.map((item, index) => {
-        const data = this.$store.getters.getOutline(item) || {}
+        const childNodeData = this.$store.getters.getOutline(item) || {}
         return (
-          <Node data={data} index={index} parentid={this.data._id} grandparentid={this.parentid} key={data._id} />
+          <Node nodeData={childNodeData} index={index} parentid={parentid} grandparentid={grandparentid} key={childNodeData._id} />
         )
       })
 
