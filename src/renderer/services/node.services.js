@@ -6,7 +6,7 @@ import { logger } from '../modules/logger'
  * @param {string} _id
  * @returns {object}
  */
-export async function findNode (_id) {
+export async function getNode (_id) {
   try {
     return await db.findOneAsync({ _id: _id })
   } catch (error) {

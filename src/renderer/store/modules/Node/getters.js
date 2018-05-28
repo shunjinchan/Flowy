@@ -1,7 +1,7 @@
 export default {
   getNode: (state) => {
-    return (id) => {
-      return state[id]
+    return (_id) => {
+      return state[_id]
     }
   },
 

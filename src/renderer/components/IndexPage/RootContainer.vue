@@ -1,8 +1,6 @@
 <script>
-import _ from 'lodash'
-// import Rx from 'rxjs/Rx'
+// import _ from 'lodash'
 import Root from './Root'
-// import { getAllNode, insertNode } from '../../services/node.services'
 
 export default {
   name: 'root-container',
@@ -36,61 +34,14 @@ export default {
   },
 
   methods: {
-    async initRootNode () {
-      const rootNode = await this.$store.dispatch('initRootNode')
-      const allNode = await this.$store.dispatch('getAllNode')
-      if (_.isEmpty(rootNode) || _.isEmpty(allNode)) return
-      if (!this.rootData.children || this.rootData.children.length === 0) {
-        await this.$store.dispatch('addNode', { parentid: 'root' })
-      }
-    },
-
-    async initFakeRootNode (_id) {
-      const allNode = await this.$store.dispatch('getAllNode')
-      if (_.isEmpty(allNode)) return
-      this.rootid = _id
+    async getRootNode () {
+      const _id = this.rootid
+      await this.$store.dispatch('getRootNode', { _id })
     }
-
-    // getRootNode () {
-    //   const updateRootNodeState = (data) => {
-    //     this.$store.commit('updateNode', data)
-    //     debugger
-    //     // if (!data.children || data.children.length === 0) {
-    //     //   this.$store.dispatch('addNode', { parentid: data._id })
-    //     // }
-    //   }
-    //   const initApp = () => {
-    //     Rx.Observable.fromPromise(insertNode({
-    //       _id: 'root',
-    //       attributes: { text: 'Home', note: '' },
-    //       children: []
-    //     })).subscribe(root => {
-    //       if (root && !_.isEmpty(root)) {
-    //         updateRootNodeState(root)
-    //       }
-    //     })
-    //   }
-
-    //   Rx.Observable.fromPromise(getAllNode()).subscribe(nodeList => {
-    //     if (!nodeList || _.isEmpty(nodeList)) {
-    //       initApp()
-    //     } else {
-    //       nodeList.forEach(node => {
-    //         if (node._id === this.rootid) {
-    //           updateRootNodeState(node)
-    //         }
-    //       })
-    //     }
-    //   })
-    // }
   },
 
-  async mounted () {
-    if (this.rootid === 'root') {
-      await this.initRootNode()
-    } else {
-      await this.initFakeRootNode(this.rootid)
-    }
+  mounted () {
+    this.getRootNode()
   }
 }
 </script>

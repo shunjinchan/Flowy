@@ -1,25 +1,62 @@
 import _ from 'lodash'
 import db from '@/datastore'
-// import { getAllNode, insertNode } from '../../../services/node.services'
+import {
+  getAllNode,
+  insertNode,
+  getNode
+} from '../../../services/node.services'
 
 export default {
+  async getNode ({ commit, state }, { _id }) {
+    const node = await getNode(_id)
+    return node
+  },
+
+  async getAllNode ({ commit, state }) {
+    const nodeList = await getAllNode()
+    return nodeList
+  },
+
   /**
-   * 初始化根节点
+   * 插入空的新节点
    * @param commit
+   * @param data
    * @returns {Promise<object>}
    */
-  async initRootNode ({ commit, state }) {
-    let data = await db.findOneAsync({ _id: 'root' })
-    // 数据库为空代表首次访问，更新数据库
-    if (data === undefined || _.isEmpty(data)) {
-      data = await db.insertAsync({
-        _id: 'root',
+  async insertNode ({ commit }, { parentid = '' }) {
+    const newNode = await insertNode({
+      attributes: { text: '', note: '' },
+      children: [],
+      parentid: parentid
+    })
+    commit('insertNode', newNode)
+
+    return newNode
+  },
+
+  async getRootNode ({ commit, dispatch, state }, { _id }) {
+    let nodeList = await dispatch('getAllNode')
+    let rootNode = {}
+
+    if (!nodeList || _.isEmpty(nodeList)) {
+      rootNode = await insertNode({
         attributes: { text: 'Home', note: '' },
-        children: []
+        children: [],
+        parentid: '',
+        _id: 'root'
       })
+      commit('insertNode', rootNode)
+    } else {
+      nodeList.forEach(node => {
+        if (node._id === _id) rootNode = node
+      })
+      commit('setAllNode', nodeList)
     }
-    commit('updateNode', data)
-    return data
+    if (!rootNode.children || rootNode.children.length === 0) {
+      await dispatch('addNode', { parentid: rootNode._id })
+    }
+
+    return rootNode
   },
 
   /**
@@ -30,66 +67,41 @@ export default {
    * @returns {Promise<object>}
    */
   async addNode ({ commit, dispatch }, { parentid, previd }) {
-    let parentNodeData = await db.findOneAsync({ _id: parentid })
-    let newNodeData
+    let parentNode = await dispatch('getNode', { _id: parentid })
+    let newNode
 
-    if (parentNodeData !== undefined && !_.isEmpty(parentNodeData)) {
-      newNodeData = await dispatch('insertNode', { parentid })
-      if (newNodeData !== undefined && !_.isEmpty(newNodeData)) {
-        // 更新父节点
+    if (parentNode && !_.isEmpty(parentNode)) {
+      newNode = await dispatch('insertNode', { parentid })
+
+      // 更新父节点
+      if (newNode && !_.isEmpty(newNode)) {
+        // 有前一个相邻节点
         if (previd) {
-          const index = parentNodeData.children.indexOf(previd)
-          parentNodeData.children.splice(index + 1, 0, newNodeData._id)
+          let index = parentNode.children.indexOf(previd)
+          parentNode.children.splice(index + 1, 0, newNode._id)
         } else {
-          parentNodeData.children.push(newNodeData._id)
+          parentNode.children.push(newNode._id)
         }
-        parentNodeData = await dispatch('updateNode', parentNodeData)
+
+        parentNode = await dispatch('updateNode', parentNode)
       }
     }
 
-    return newNodeData
+    return newNode
   },
 
   async deleteNode ({ commit, dispatch }, { parentid, _id }) {
     const numRemoved = await db.removeAsync({ _id: _id })
-    const parentNodeData = await db.findOneAsync({ _id: parentid })
+    const parentNode = await db.findOneAsync({ _id: parentid })
 
     // 更新父节点
-    if (parentNodeData !== undefined && !_.isEmpty(parentNodeData)) {
-      const index = parentNodeData.children.indexOf(_id)
-      parentNodeData.children.splice(index, 1)
-      await dispatch('updateNode', parentNodeData)
+    if (parentNode !== undefined && !_.isEmpty(parentNode)) {
+      const index = parentNode.children.indexOf(_id)
+      parentNode.children.splice(index, 1)
+      await dispatch('updateNode', parentNode)
     }
 
     return numRemoved
-  },
-
-  /**
-   * 插入空的新节点
-   * @param commit
-   * @param data
-   * @returns {Promise<object>}
-   */
-  async insertNode ({ commit }, { parentid = '' }) {
-    const newNodeData = await db.insertAsync({
-      attributes: { text: '', note: '' },
-      node: [],
-      parentid: parentid
-    })
-    commit('insertNode', newNodeData)
-
-    return newNodeData
-  },
-
-  /**
-   * 和获取所有的节点数据
-   * @param commit
-   * @returns {Promise<object>}
-   */
-  async getAllNode ({ commit }) {
-    const data = await db.findAsync({})
-    commit('setAllNode', data)
-    return data
   },
 
   /**
@@ -139,27 +151,27 @@ export default {
   },
 
   async deleteNodeChildren ({ commit, dispatch }, { _id, parentid }) {
-    let parentNodeData = await db.findOneAsync({ _id: parentid })
+    let parentNode = await db.findOneAsync({ _id: parentid })
 
     // 更新父节点
-    if (parentNodeData !== undefined && !_.isEmpty(parentNodeData)) {
-      const index = parentNodeData.children.indexOf(_id)
-      parentNodeData.children.splice(index, 1)
-      parentNodeData = await dispatch('updateNode', parentNodeData)
+    if (parentNode !== undefined && !_.isEmpty(parentNode)) {
+      const index = parentNode.children.indexOf(_id)
+      parentNode.children.splice(index, 1)
+      parentNode = await dispatch('updateNode', parentNode)
     }
 
-    return parentNodeData
+    return parentNode
   },
 
   async addNodeChildren ({ commit, dispatch }, { _id, targetid }) {
-    let targetNodeData = await db.findOneAsync({ _id: targetid })
+    let targetNode = await db.findOneAsync({ _id: targetid })
 
     // 更新目标节点
-    if (targetNodeData !== undefined && !_.isEmpty(targetNodeData)) {
-      targetNodeData.children.push(_id)
-      targetNodeData = await dispatch('updateNode', targetNodeData)
+    if (targetNode !== undefined && !_.isEmpty(targetNode)) {
+      targetNode.children.push(_id)
+      targetNode = await dispatch('updateNode', targetNode)
     }
 
-    return targetNodeData
+    return targetNode
   }
 }
