@@ -1,6 +1,6 @@
 <template>
     <div class="command-container">
-      <button @click="emptyAllOutline">{{ text }}</button>
+      <button @click="emptyAllNode">{{ text }}</button>
     </div>
 </template>
 
@@ -13,8 +13,8 @@ export default {
     }
   },
   methods: {
-    async emptyAllOutline () {
-      await this.$store.dispatch('emptyAllOutline')
+    async emptyAllNode () {
+      await this.$store.dispatch('emptyAllNode')
       this.$store.commit('emptyCrumb')
     }
   }

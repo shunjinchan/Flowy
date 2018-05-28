@@ -8,7 +8,8 @@
         @keypress.enter.prevent="handleKeypressEnter"
         @keydown.delete="handleKeydownDelete"
         @keydown.tab.prevent="handleKeydownTab" 
-        @focus="handleFocus">
+        @focus="handleFocus"
+        @blur="handleBlur">
     </div>
   </div>
 </template>
@@ -58,6 +59,13 @@
         require: false
       },
       handleFocus: {
+        type: Function,
+        default () {
+          return () => {}
+        },
+        require: false
+      },
+      handleBlur: {
         type: Function,
         default () {
           return () => {}

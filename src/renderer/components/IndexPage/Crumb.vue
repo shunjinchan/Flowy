@@ -30,9 +30,6 @@ export default {
       this.$router.push({ path: _id })
       this.$store.dispatch('updateCrumb', _id)
     }
-  },
-  mounted () {
-    console.log(this.crumbList)
   }
 }
 </script>

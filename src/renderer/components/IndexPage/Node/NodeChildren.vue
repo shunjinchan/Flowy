@@ -16,8 +16,8 @@
 
     computed: {
       children () {
-        const outline = _.get(this.nodeData, 'outline')
-        return outline || []
+        const children = _.get(this.nodeData, 'children')
+        return children || []
       },
       hasChildren () {
         return this.children && this.children.length > 0
@@ -34,7 +34,7 @@
       const parentid = this.nodeData._id
       const grandparentid = this.parentid
       const ele = this.children.map((item, index) => {
-        const childNodeData = this.$store.getters.getOutline(item) || {}
+        const childNodeData = this.$store.getters.getNode(item) || {}
         return (
           <Node nodeData={childNodeData} index={index} parentid={parentid} grandparentid={grandparentid} key={childNodeData._id} />
         )

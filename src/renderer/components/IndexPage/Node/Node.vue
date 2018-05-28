@@ -10,8 +10,8 @@
                :renderExpandButton="hasChildren && isCollapsed"
                :collapseChildren="collapseChildren"
                :expandChildren="expandChildren"
-               :lazyUpdateOutline="lazyUpdateOutline" :updateOutline="updateOutline" 
-               :currentOutlineid="currentOutlineid" />
+               :lazyupdateNode="lazyupdateNode" :updateNode="updateNode" 
+               :currentNodeid="currentNodeid" />
     <node-note :nodeData="nodeData"
                :parentid="parentid" />
     <node-children v-if="hasChildren && isExpanded"
@@ -57,23 +57,24 @@ export default {
 
   computed: {
     children () {
-      return _.get(this.nodeData, 'outline') || []
+      return _.get(this.nodeData, 'children') || []
     },
 
-    parentOutline () {
+    // 父节点的子节点数组，主要用于计算当前节点索引值与查找相邻节点
+    parentChildren () {
       if (this.parentid) {
-        return this.$store.getters.getOutline(this.parentid).outline
+        return this.$store.getters.getNode(this.parentid).children
       } else {
         return [this.nodeData._id]
       }
     },
 
-    currentOutlineid () {
-      return this.$store.getters.currentOutlineid || ''
+    currentNodeid () {
+      return this.$store.getters.currentNodeid || ''
     },
 
     currentIndex () {
-      return this.parentOutline.indexOf(this.nodeData._id)
+      return this.parentChildren.indexOf(this.nodeData._id)
     },
 
     previd () {
@@ -83,7 +84,7 @@ export default {
         this.nodeData._id &&
         this.currentIndex >= 1
       ) {
-        previd = this.parentOutline[this.currentIndex - 1]
+        previd = this.parentChildren[this.currentIndex - 1]
       }
       return previd
     },
@@ -103,16 +104,16 @@ export default {
   },
 
   methods: {
-    async updateOutline (outlineData) {
+    async updateNode (nodeData) {
       const affectedDocuments = await this.$store.dispatch(
-        'updateOutline', outlineData
+        'updateNode', nodeData
       )
       return affectedDocuments
     },
 
-    async lazyUpdateOutline (outlineData) {
+    async lazyupdateNode (nodeData) {
       const affectedDocuments = await this.$store.dispatch(
-        'lazyUpdateOutline', outlineData
+        'lazyupdateNode', nodeData
       )
       return affectedDocuments
     },
@@ -121,14 +122,14 @@ export default {
       const data = _.merge({}, this.nodeData, {
         attributes: { isExpanded: false }
       })
-      this.updateOutline(data)
+      this.updateNode(data)
     },
 
     expandChildren () {
       const data = _.merge({}, this.nodeData, {
         attributes: { isExpanded: true }
       })
-      this.updateOutline(data)
+      this.updateNode(data)
     }
   }
 }

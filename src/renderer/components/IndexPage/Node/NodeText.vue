@@ -12,6 +12,7 @@
                 :handleKeydownTab="handleKeydownTab"
                 :handleClick="handleTextClick"
                 :handleFocus="handleTextFocus"
+                :handleBlur="handleTextBlur"
                 :handleInput="handleTextInput" />
   </div>
 </template>
@@ -68,21 +69,21 @@ export default {
     expandChildren: {
       type: Function
     },
-    lazyUpdateOutline: {
+    lazyupdateNode: {
       type: Function,
       default () {
         return () => {}
       },
       require: false
     },
-    updateOutline: {
+    updateNode: {
       type: Function,
       default () {
         return () => {}
       },
       require: false
     },
-    currentOutlineid: {
+    currentNodeid: {
       type: String
     }
   },
@@ -97,7 +98,7 @@ export default {
       return _.get(this.nodeData, 'attributes.text') || ''
     },
     focus () {
-      return this.currentOutlineid === this._id
+      return this.currentNodeid === this._id
     }
   },
 
@@ -109,31 +110,31 @@ export default {
   },
 
   methods: {
-    async addOutline (param) {
-      const newOutlineData = await this.$store.dispatch('addOutline', param)
-      return newOutlineData
+    async addNode (param) {
+      const newNodeData = await this.$store.dispatch('addNode', param)
+      return newNodeData
     },
 
-    async deleteOutline (param) {
-      const numRemoved = await this.$store.dispatch('deleteOutline', param)
+    async deleteNode (param) {
+      const numRemoved = await this.$store.dispatch('deleteNode', param)
       return numRemoved
     },
 
-    async deleteOutlineChildren (_id, parentid) {
-      const parentOutlineData = await this.$store.dispatch(
-        'deleteOutlineChildren',
+    async deleteNodeChildren (_id, parentid) {
+      const parentNodeData = await this.$store.dispatch(
+        'deleteNodeChildren',
         { _id, parentid }
       )
-      return parentOutlineData
+      return parentNodeData
     },
 
     // 将节点设置为其目标节点的子节点
-    async moveOutlineToTargetOutline (_id, targetid) {
-      const targetOutlineData = await this.$store.dispatch(
-        'addOutlineChildren',
+    async moveNodeToTargetNode (_id, targetid) {
+      const targetNodeData = await this.$store.dispatch(
+        'addNodeChildren',
         { _id, targetid }
       )
-      return targetOutlineData
+      return targetNodeData
     },
 
     // bullet-button
@@ -143,23 +144,16 @@ export default {
     },
 
     // text-field
-    deleteCurrentOutline () {
+    deleteCurrentNode () {
       const parentid = this.parentid
       const _id = this._id
       const param = { parentid: parentid, _id: _id }
-      this.deleteOutline(param)
+      this.deleteNode(param)
     },
 
-    updateOutlineText (text) {
+    updateNodeText (text) {
       const data = _.merge({}, this.nodeData, {
         attributes: { text: text }
-      })
-      return data
-    },
-
-    updateOutlineParentid (_id) {
-      const data = _.merge({}, this.nodeData, {
-        parentid: _id
       })
       return data
     },
@@ -168,48 +162,61 @@ export default {
 
     handleTextFocus (evt) {},
 
+    handleTextBlur (evt) {
+      this.updateNode(this.updateNodeText(evt.target.textContent))
+    },
+
     handleTextInput (text) {
-      this.lazyUpdateOutline(this.updateOutlineText(text))
+      this.lazyupdateNode(this.updateNodeText(text))
     },
 
     async handleKeypressEnter (evt) {
       // 更新该节点，并为父节点添加一个新的子节点
-      const updateOutline = () => {
+      const updateNode = () => {
         const parentid = this.parentid
         const _id = this._id
-        this.addOutline({ parentid: parentid, previd: _id })
+        this.addNode({ parentid: parentid, previd: _id })
       }
+      const grandparentid = this.grandparentid
 
       if (evt.target.textContent === '') {
-        await this.updateOutline(this.updateOutlineText(evt.target.textContent))
+        // 更新当前节点
+        await this.updateNode(_.merge({}, this.nodeData, {
+          parentid: grandparentid,
+          attributes: { text: evt.target.textContent }
+        }))
         // indentLeft
         // 将该节点从父节点的子节点数组中移除
-        await this.deleteOutlineChildren(this._id, this.parentid)
+        await this.deleteNodeChildren(this._id, this.parentid)
         // 将该节点添加到其祖父节点的子节点数组中
-        await this.moveOutlineToTargetOutline(this._id, this.grandparentid)
+        await this.moveNodeToTargetNode(this._id, this.grandparentid)
         // 更新节点的 parentid
-        await this.updateOutline(this.updateOutlineParentid(this.grandparentid))
       } else {
-        updateOutline()
+        updateNode()
       }
     },
 
     handleKeydownDelete (evt) {
       if (evt.target.textContent === '') {
-        this.deleteCurrentOutline()
+        this.deleteCurrentNode()
       }
     },
 
     async handleKeydownTab (evt) {
       if (this.index < 1) return
 
+      const previd = this.previd
+      // 更新当前节点
       // 由于在输入的时候文本框的内容是非响应式的，缩进的操作是重新实例化一个节点组件，所以需要先更新数据再缩进
-      await this.updateOutline(this.updateOutlineText(evt.target.textContent))
+      await this.updateNode(_.merge({}, this.nodeData, {
+        parentid: previd,
+        attributes: { text: evt.target.textContent }
+      }))
       // indentRight
       // 将该节点从父节点的子节点数组中移除
-      await this.deleteOutlineChildren(this._id, this.parentid)
+      await this.deleteNodeChildren(this._id, this.parentid)
       // 将该节点添加到前一个节点的子节点数组中
-      await this.moveOutlineToTargetOutline(this._id, this.previd)
+      await this.moveNodeToTargetNode(this._id, this.previd)
     }
   }
 }

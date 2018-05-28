@@ -2,7 +2,7 @@
     <main class="board">
         <command-container />
         <crumb-container />
-        <article className="outline">
+        <article className="article">
             <root-container />
         </article>
     </main>

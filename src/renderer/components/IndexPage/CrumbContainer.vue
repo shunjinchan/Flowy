@@ -16,11 +16,12 @@ export default {
     crumbList () {
       const list = []
       const getCrumbList = (_id) => {
-        const outline = this.$store.getters.getOutline(_id)
-        list.unshift(outline)
-        if (outline && outline.parentid) getCrumbList(outline.parentid)
+        const node = this.$store.getters.getNode(_id)
+        list.unshift(node)
+        if (node && node.parentid) getCrumbList(node.parentid)
       }
-      getCrumbList(this.crumb.current)
+      getCrumbList(this.crumb.current) // 拼接节点数据
+      list.pop() // 最后一个节点不需要在面包屑上展示
       return list
     }
   }

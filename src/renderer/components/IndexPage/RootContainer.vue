@@ -1,6 +1,8 @@
 <script>
 import _ from 'lodash'
+// import Rx from 'rxjs/Rx'
 import Root from './Root'
+// import { getAllNode, insertNode } from '../../services/node.services'
 
 export default {
   name: 'root-container',
@@ -17,7 +19,7 @@ export default {
 
   computed: {
     rootData () {
-      return this.$store.getters.getOutline(this.rootid) || {}
+      return this.$store.getters.getNode(this.rootid) || {}
     }
   },
 
@@ -34,27 +36,60 @@ export default {
   },
 
   methods: {
-    async initRootOutline () {
-      const rootOutline = await this.$store.dispatch('initRootOutline')
-      const allOutline = await this.$store.dispatch('getAllOutline')
-      if (_.isEmpty(rootOutline) || _.isEmpty(allOutline)) return
-      if (!this.rootData.outline || this.rootData.outline.length === 0) {
-        await this.$store.dispatch('addOutline', { parentid: 'root' })
+    async initRootNode () {
+      const rootNode = await this.$store.dispatch('initRootNode')
+      const allNode = await this.$store.dispatch('getAllNode')
+      if (_.isEmpty(rootNode) || _.isEmpty(allNode)) return
+      if (!this.rootData.children || this.rootData.children.length === 0) {
+        await this.$store.dispatch('addNode', { parentid: 'root' })
       }
     },
 
-    async initFakeRootOutline (_id) {
-      const allOutline = await this.$store.dispatch('getAllOutline')
-      if (_.isEmpty(allOutline)) return
+    async initFakeRootNode (_id) {
+      const allNode = await this.$store.dispatch('getAllNode')
+      if (_.isEmpty(allNode)) return
       this.rootid = _id
     }
+
+    // getRootNode () {
+    //   const updateRootNodeState = (data) => {
+    //     this.$store.commit('updateNode', data)
+    //     debugger
+    //     // if (!data.children || data.children.length === 0) {
+    //     //   this.$store.dispatch('addNode', { parentid: data._id })
+    //     // }
+    //   }
+    //   const initApp = () => {
+    //     Rx.Observable.fromPromise(insertNode({
+    //       _id: 'root',
+    //       attributes: { text: 'Home', note: '' },
+    //       children: []
+    //     })).subscribe(root => {
+    //       if (root && !_.isEmpty(root)) {
+    //         updateRootNodeState(root)
+    //       }
+    //     })
+    //   }
+
+    //   Rx.Observable.fromPromise(getAllNode()).subscribe(nodeList => {
+    //     if (!nodeList || _.isEmpty(nodeList)) {
+    //       initApp()
+    //     } else {
+    //       nodeList.forEach(node => {
+    //         if (node._id === this.rootid) {
+    //           updateRootNodeState(node)
+    //         }
+    //       })
+    //     }
+    //   })
+    // }
   },
 
   async mounted () {
     if (this.rootid === 'root') {
-      await this.initRootOutline()
+      await this.initRootNode()
     } else {
-      await this.initFakeRootOutline(this.rootid)
+      await this.initFakeRootNode(this.rootid)
     }
   }
 }

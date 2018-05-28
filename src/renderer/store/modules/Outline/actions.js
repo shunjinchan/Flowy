@@ -1,5 +1,6 @@
 import _ from 'lodash'
 import db from '@/datastore'
+// import { getAllNode, insertNode } from '../../../services/node.services'
 
 export default {
   /**
@@ -7,65 +8,59 @@ export default {
    * @param commit
    * @returns {Promise<object>}
    */
-  async initRootOutline ({ commit, state }) {
-    let data = null
-
-    try {
-      data = await db.findOneAsync({ _id: 'root' })
-      // 数据库为空代表首次访问，更新数据库
-      if (_.isEmpty(data)) {
-        data = await db.insertAsync({
-          _id: 'root',
-          attributes: { text: 'Home', note: '' },
-          outline: []
-        })
-      }
-      commit('updateOutline', data)
-    } catch (error) {
-      data = {}
+  async initRootNode ({ commit, state }) {
+    let data = await db.findOneAsync({ _id: 'root' })
+    // 数据库为空代表首次访问，更新数据库
+    if (data === undefined || _.isEmpty(data)) {
+      data = await db.insertAsync({
+        _id: 'root',
+        attributes: { text: 'Home', note: '' },
+        children: []
+      })
     }
-
+    commit('updateNode', data)
     return data
   },
 
   /**
-   * 添加节点，同样会在其父节点的 outline 属性中增加该新节点的 id
+   * 添加节点，同样会在其父节点的 node 属性中增加该新节点的 id
    * @param commit
    * @param parentid 父节点 id
    * @param previd 上一个节点 id，根据这个节点 id 选择插入位置
    * @returns {Promise<object>}
    */
-  async addOutline ({ commit, dispatch }, { parentid, previd }) {
-    const parentOutlineData = await db.findOneAsync({ _id: parentid })
+  async addNode ({ commit, dispatch }, { parentid, previd }) {
+    let parentNodeData = await db.findOneAsync({ _id: parentid })
+    let newNodeData
 
-    if (parentOutlineData) {
-      const newOutlineData = await dispatch('insertOutline', { parentid })
-
-      // 更新父节点
-      if (previd) {
-        const index = parentOutlineData.outline.indexOf(previd)
-        parentOutlineData.outline.splice(index + 1, 0, newOutlineData._id)
-      } else {
-        parentOutlineData.outline.push(newOutlineData._id)
+    if (parentNodeData !== undefined && !_.isEmpty(parentNodeData)) {
+      newNodeData = await dispatch('insertNode', { parentid })
+      if (newNodeData !== undefined && !_.isEmpty(newNodeData)) {
+        // 更新父节点
+        if (previd) {
+          const index = parentNodeData.children.indexOf(previd)
+          parentNodeData.children.splice(index + 1, 0, newNodeData._id)
+        } else {
+          parentNodeData.children.push(newNodeData._id)
+        }
+        parentNodeData = await dispatch('updateNode', parentNodeData)
       }
-      await dispatch('updateOutline', parentOutlineData)
-
-      return newOutlineData
     }
 
-    return null
+    return newNodeData
   },
 
-  async deleteOutline ({ commit, dispatch }, { parentid, _id }) {
-    const parentOutlineData = await db.findOneAsync({ _id: parentid })
+  async deleteNode ({ commit, dispatch }, { parentid, _id }) {
     const numRemoved = await db.removeAsync({ _id: _id })
+    const parentNodeData = await db.findOneAsync({ _id: parentid })
 
     // 更新父节点
-    if (parentOutlineData) {
-      const index = parentOutlineData.outline.indexOf(_id)
-      parentOutlineData.outline.splice(index, 1)
-      await dispatch('updateOutline', parentOutlineData)
+    if (parentNodeData !== undefined && !_.isEmpty(parentNodeData)) {
+      const index = parentNodeData.children.indexOf(_id)
+      parentNodeData.children.splice(index, 1)
+      await dispatch('updateNode', parentNodeData)
     }
+
     return numRemoved
   },
 
@@ -75,14 +70,15 @@ export default {
    * @param data
    * @returns {Promise<object>}
    */
-  async insertOutline ({ commit }, { _id = '', parentid = '' }) {
-    const newOutlineData = await db.insertAsync({
+  async insertNode ({ commit }, { parentid = '' }) {
+    const newNodeData = await db.insertAsync({
       attributes: { text: '', note: '' },
-      outline: [],
+      node: [],
       parentid: parentid
     })
-    commit('insertOutline', newOutlineData)
-    return newOutlineData
+    commit('insertNode', newNodeData)
+
+    return newNodeData
   },
 
   /**
@@ -90,9 +86,9 @@ export default {
    * @param commit
    * @returns {Promise<object>}
    */
-  async getAllOutline ({ commit }) {
+  async getAllNode ({ commit }) {
     const data = await db.findAsync({})
-    commit('setAllOutline', data)
+    commit('setAllNode', data)
     return data
   },
 
@@ -101,67 +97,69 @@ export default {
    * @param commit
    * @returns {Promise<number>}
    */
-  async emptyAllOutline ({ commit, dispatch }) {
+  async emptyAllNode ({ commit, dispatch }) {
     const numRemoved = await db.removeAsync({}, { multi: true })
-    commit('emptyAllOutline')
-    await dispatch('initRootOutline')
-    await dispatch('addOutline', { parentid: 'root' })
+    // commit('emptyAllNode')
+    // await dispatch('initRootNode')
+    // await dispatch('addNode', { parentid: 'root' })
     return numRemoved
   },
 
   /**
    * 更新节点
    * @param commit
-   * @param outlineData
+   * @param NodeData
    * @returns {Promise<object>}
    */
-  async updateOutline ({ commit }, outlineData) {
+  async updateNode ({ commit }, NodeData) {
     const { affectedDocuments } = await db.updateAsync(
-      { _id: outlineData._id },
-      outlineData,
+      { _id: NodeData._id },
+      NodeData,
       { returnUpdatedDocs: true }
     )
-    commit('updateOutline', affectedDocuments)
+    if (affectedDocuments !== undefined && !_.isEmpty(affectedDocuments)) {
+      commit('updateNode', affectedDocuments)
+    }
     return affectedDocuments
   },
 
   /**
    * 懒更新节点数据，非响应式
    * @param commit
-   * @param outlineData
+   * @param NodeData
    * @returns {Promise<object>}
    */
-  async lazyUpdateOutline ({ commit }, outlineData) {
+  async lazyupdateNode ({ commit }, NodeData) {
     const { affectedDocuments } = await db.updateAsync(
-      { _id: outlineData._id },
-      outlineData,
+      { _id: NodeData._id },
+      NodeData,
       { returnUpdatedDocs: true }
     )
     return affectedDocuments
   },
 
-  async deleteOutlineChildren ({ commit, dispatch }, { _id, parentid }) {
-    let parentOutlineData = await db.findOneAsync({ _id: parentid })
+  async deleteNodeChildren ({ commit, dispatch }, { _id, parentid }) {
+    let parentNodeData = await db.findOneAsync({ _id: parentid })
 
     // 更新父节点
-    if (parentOutlineData) {
-      const index = parentOutlineData.outline.indexOf(_id)
-      parentOutlineData.outline.splice(index, 1)
-      parentOutlineData = await dispatch('updateOutline', parentOutlineData)
+    if (parentNodeData !== undefined && !_.isEmpty(parentNodeData)) {
+      const index = parentNodeData.children.indexOf(_id)
+      parentNodeData.children.splice(index, 1)
+      parentNodeData = await dispatch('updateNode', parentNodeData)
     }
 
-    return parentOutlineData
+    return parentNodeData
   },
 
-  async addOutlineChildren ({ commit, dispatch }, { _id, targetid }) {
-    let targetOutlineData = await db.findOneAsync({ _id: targetid })
+  async addNodeChildren ({ commit, dispatch }, { _id, targetid }) {
+    let targetNodeData = await db.findOneAsync({ _id: targetid })
 
-    // 更新父节点
-    if (targetOutlineData) {
-      targetOutlineData.outline.push(_id)
-      targetOutlineData = await dispatch('updateOutline', targetOutlineData)
+    // 更新目标节点
+    if (targetNodeData !== undefined && !_.isEmpty(targetNodeData)) {
+      targetNodeData.children.push(_id)
+      targetNodeData = await dispatch('updateNode', targetNodeData)
     }
 
-    return targetOutlineData
+    return targetNodeData
   }
 }

@@ -6,13 +6,13 @@ export default {
    * @param state
    * @param data
    */
-  setAllOutline (state, data) {
+  setAllNode (state, data) {
     data.forEach(item => {
       Vue.set(state, item._id, item)
     })
   },
 
-  insertOutline (state, data) {
+  insertNode (state, data) {
     Vue.set(state, data._id, data)
   },
 
@@ -21,27 +21,27 @@ export default {
    * @param state
    * @param data
    */
-  updateOutline (state, data) {
+  updateNode (state, data) {
     state[data._id] = data
   },
 
   // // 子节点也要移动
-  // moveOutline (state, data) {},
+  // moveNode (state, data) {},
   //
   // // 子节点也要删除
-  // deleteOutline (sate, data) {},
+  // deleteNode (sate, data) {},
   //
   // // 子节点也要更新
-  // completeOutline (state, data) {},
+  // completeNode (state, data) {},
   //
   // // 子节点也要复制
-  // duplicateOutline (state, data) {},
+  // duplicateNode (state, data) {},
 
   /**
    * 清空所有节点数据
    * @param state
    */
-  emptyAllOutline (state) {
+  emptyAllNode (state) {
     for (const key in state) {
       if (state.hasOwnProperty(key)) {
         if (key !== 'root') state[key] = null
