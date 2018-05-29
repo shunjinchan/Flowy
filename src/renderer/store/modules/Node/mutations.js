@@ -47,5 +47,9 @@ export default {
         if (key !== 'root') state[key] = null
       }
     }
+  },
+
+  updateLastEditNode (state, { nodeid }) {
+    state.lastEditNode = nodeid
   }
 }

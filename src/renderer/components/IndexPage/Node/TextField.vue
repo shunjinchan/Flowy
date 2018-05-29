@@ -23,6 +23,10 @@
         type: String,
         default: ''
       },
+      isFocus: {
+        type: Boolean,
+        default: false
+      },
       handleKeypressEnter: {
         type: Function,
         default () {
@@ -82,7 +86,9 @@
       },
 
       focus () {
+        console.log(this.isFocus)
         this.$refs.input.focus()
+        this.collapseToEnd()
       },
   
       observe () {
@@ -97,8 +103,7 @@
 
     mounted () {
       this.observe()
-      this.focus()
-      this.collapseToEnd()
+      this.isFocus && this.focus()
     }
   }
 </script>

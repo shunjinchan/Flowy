@@ -10,7 +10,8 @@
                :renderExpandButton="hasChildren && isCollapsed"
                :collapseChildren="collapseChildren"
                :expandChildren="expandChildren"
-               :lazyupdateNode="lazyupdateNode" :updateNode="updateNode" 
+               :lazyupdateNode="lazyupdateNode" 
+               :updateNode="updateNode" 
                :currentNodeid="currentNodeid" />
     <node-note :nodeData="nodeData"
                :parentid="parentid" />
@@ -90,7 +91,11 @@ export default {
     },
 
     hasChildren () {
-      return this.children.length > 0
+      return this.children && this.children.length > 0
+    },
+
+    isLeaf () {
+      return this.children && this.children.length === 0
     },
 
     // node-children 默认展开，如果要折叠就将 isExpanded 设置为 false

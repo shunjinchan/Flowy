@@ -13,7 +13,8 @@
                 :handleClick="handleTextClick"
                 :handleFocus="handleTextFocus"
                 :handleBlur="handleTextBlur"
-                :handleInput="handleTextInput" />
+                :handleInput="handleTextInput"
+                :isFocus="isFocus" />
   </div>
 </template>
 
@@ -92,13 +93,17 @@ export default {
     _id () {
       return this.nodeData._id
     },
+    lastEditNodeid () {
+      return _.get(this.$store.state.Node, 'lastEditNode.nodeid')
+    },
     text () {
       // 响应式：更新会将输入框的聚焦状态置换到首字符之前
       // 不是响应式：无法响应更新，例如路由跳转后
       return _.get(this.nodeData, 'attributes.text') || ''
     },
-    focus () {
-      return this.currentNodeid === this._id
+    isFocus () {
+      if (this.lastEditNodeid === this._id) return true
+      return false
     }
   },
 
@@ -160,7 +165,9 @@ export default {
 
     handleTextClick (evt) {},
 
-    handleTextFocus (evt) {},
+    handleTextFocus (evt) {
+      this.$store.dispatch('updateLastEditNode', this._id)
+    },
 
     handleTextBlur (evt) {
       this.updateNode(this.updateNodeText(evt.target.textContent))
@@ -199,6 +206,9 @@ export default {
     handleKeydownDelete (evt) {
       if (evt.target.textContent === '') {
         this.deleteCurrentNode()
+        if (this.previd) {
+          this.$store.dispatch('updateLastEditNode', this.previd)
+        }
       }
     },
 
