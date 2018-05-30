@@ -49,7 +49,7 @@ export default {
     }
   },
 
-  updateLastEditNode (state, { nodeid }) {
-    state.lastEditNode = nodeid
+  updateLastEditNode (state, data) {
+    state.lastEditNode = data
   }
 }

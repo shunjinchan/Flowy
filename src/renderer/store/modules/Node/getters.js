@@ -5,7 +5,7 @@ export default {
     }
   },
 
-  currentNodeid (state) {
-    return state.currentNodeid
+  lastEditNode (state) {
+    return state.lastEditNode
   }
 }

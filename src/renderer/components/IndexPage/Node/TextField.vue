@@ -78,6 +78,12 @@
       }
     },
 
+    watch: {
+      isFocus () {
+        this.isFocus && this.focus()
+      }
+    },
+
     methods: {
       collapseToEnd () {
         const selection = getSelection()
@@ -86,7 +92,6 @@
       },
 
       focus () {
-        console.log(this.isFocus)
         this.$refs.input.focus()
         this.collapseToEnd()
       },

@@ -193,9 +193,7 @@ export default {
     } else {
       let { affectedDocuments } = await updateAsync(
         { _id: 'lastEditNode' },
-        {
-          nodeid: _id
-        },
+        { nodeid: _id },
         { returnUpdatedDocs: true }
       )
       data = affectedDocuments

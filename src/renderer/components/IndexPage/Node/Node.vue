@@ -11,8 +11,7 @@
                :collapseChildren="collapseChildren"
                :expandChildren="expandChildren"
                :lazyupdateNode="lazyupdateNode" 
-               :updateNode="updateNode" 
-               :currentNodeid="currentNodeid" />
+               :updateNode="updateNode" />
     <node-note :nodeData="nodeData"
                :parentid="parentid" />
     <node-children v-if="hasChildren && isExpanded"
@@ -68,10 +67,6 @@ export default {
       } else {
         return [this.nodeData._id]
       }
-    },
-
-    currentNodeid () {
-      return this.$store.getters.currentNodeid || ''
     },
 
     currentIndex () {

@@ -15,6 +15,8 @@
                 :handleBlur="handleTextBlur"
                 :handleInput="handleTextInput"
                 :isFocus="isFocus" />
+
+      {{isFocus}}
   </div>
 </template>
 
@@ -83,9 +85,6 @@ export default {
         return () => {}
       },
       require: false
-    },
-    currentNodeid: {
-      type: String
     }
   },
 
@@ -93,8 +92,8 @@ export default {
     _id () {
       return this.nodeData._id
     },
-    lastEditNodeid () {
-      return _.get(this.$store.state.Node, 'lastEditNode.nodeid')
+    lastEditNode () {
+      return this.$store.getters.lastEditNode || {}
     },
     text () {
       // 响应式：更新会将输入框的聚焦状态置换到首字符之前
@@ -102,7 +101,7 @@ export default {
       return _.get(this.nodeData, 'attributes.text') || ''
     },
     isFocus () {
-      if (this.lastEditNodeid === this._id) return true
+      if (this.lastEditNode.nodeid === this._id) return true
       return false
     }
   },
@@ -179,14 +178,23 @@ export default {
 
     async handleKeypressEnter (evt) {
       // 更新该节点，并为父节点添加一个新的子节点
-      const updateNode = () => {
+      const addNode = async () => {
         const parentid = this.parentid
         const _id = this._id
-        this.addNode({ parentid: parentid, previd: _id })
+        const newNode = await this.addNode({ parentid: parentid, previd: _id })
+        this.$store.dispatch('updateLastEditNode', newNode._id)
       }
       const grandparentid = this.grandparentid
 
       if (evt.target.textContent === '') {
+        // 当前节点的父节点是根节点且没有输入内容，不执行任何操作
+        if (
+          this.parentid === 'root' ||
+          this.parentid === this.$route.params.id
+        ) {
+          return
+        }
+
         // 更新当前节点
         await this.updateNode(_.merge({}, this.nodeData, {
           parentid: grandparentid,
@@ -199,7 +207,7 @@ export default {
         await this.moveNodeToTargetNode(this._id, this.grandparentid)
         // 更新节点的 parentid
       } else {
-        updateNode()
+        addNode()
       }
     },
 
