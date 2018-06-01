@@ -23,6 +23,7 @@ module.exports = {
     // allow debugger during development
     'no-debugger': process.env.NODE_ENV === 'production' ? 2 : 0,
     'code': 80,
-    'max-len': 'warn'
+    'max-len': 'warn',
+    'no-unused-vars': 'warn'
   }
 }

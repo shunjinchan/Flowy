@@ -1,13 +1,15 @@
 import _ from 'lodash'
 import {
   getAllNode,
-  insertAsync,
   getNode,
   deleteNode,
-  deleteAllNode,
+  deleteAllNode
+} from '../../../services/node.services'
+import {
+  insertAsync,
   updateAsync,
   findOneAsync
-} from '../../../services/node.services'
+} from '../../../services/db.services.js'
 
 export default {
   async getNode ({ commit, state }, { _id }) {
@@ -85,13 +87,13 @@ export default {
   /**
    * 更新节点
    * @param commit
-   * @param NodeData
+   * @param nodeData
    * @returns {Promise<object>}
    */
-  async updateNode ({ commit }, NodeData) {
+  async updateNode ({ commit }, nodeData) {
     const { affectedDocuments } = await updateAsync(
-      { _id: NodeData._id },
-      NodeData,
+      { _id: nodeData._id },
+      nodeData,
       { returnUpdatedDocs: true }
     )
     if (affectedDocuments && !_.isEmpty(affectedDocuments)) {
@@ -103,13 +105,13 @@ export default {
   /**
    * 懒更新节点数据，非响应式
    * @param commit
-   * @param NodeData
+   * @param nodeData
    * @returns {Promise<object>}
    */
-  async lazyupdateNode ({ commit }, NodeData) {
+  async lazyupdateNode ({ commit }, nodeData) {
     const { affectedDocuments } = await updateAsync(
-      { _id: NodeData._id },
-      NodeData,
+      { _id: nodeData._id },
+      nodeData,
       { returnUpdatedDocs: true }
     )
     return affectedDocuments

@@ -7,16 +7,16 @@
     <bullet-button :isCollapsed="isCollapsed"
                    :handleClick="handleBulletClick" />
     <text-field :text="text"
-                :handleKeypressEnter="handleKeypressEnter"
-                :handleKeydownDelete="handleKeydownDelete"
-                :handleKeydownTab="handleKeydownTab"
+                :isFocus="isFocus"
                 :handleClick="handleTextClick"
                 :handleFocus="handleTextFocus"
                 :handleBlur="handleTextBlur"
                 :handleInput="handleTextInput"
-                :isFocus="isFocus" />
-
-      {{isFocus}}
+                :handleKeydownTab="handleKeydownTab"
+                :handleKeydownEnter="handleKeydownEnter"
+                :handleKeydownDelete="handleKeydownDelete"
+                :handleKeydownShiftAndTab="handleKeydownShiftAndTab"
+                :handleKeydownShiftAndEnter="handleKeydownShiftAndEnter" />
   </div>
 </template>
 
@@ -33,8 +33,7 @@ export default {
   data () {
     return {
       showCollapseButton: false,
-      showExpandButton: false,
-      editable: true
+      showExpandButton: false
     }
   },
 
@@ -162,6 +161,37 @@ export default {
       return data
     },
 
+    async indentRight (text) {
+      const previd = this.previd
+      const _id = this._id
+      const parentid = this.parentid
+      // 由于在输入的时候文本框的内容是非响应式的，缩进的操作是重新实例化一个节点组件，所以需要先更新数据再缩进
+      // 更新当前节点
+      await this.updateNode(_.merge({}, this.nodeData, {
+        parentid: previd,
+        attributes: { text: text }
+      }))
+      // 将该节点从父节点的子节点数组中移除
+      await this.deleteNodeChildren(_id, parentid)
+      // 将该节点添加到前一个节点的子节点数组中
+      await this.moveNodeToTargetNode(_id, previd)
+    },
+
+    async indentLeft (text) {
+      const grandparentid = this.grandparentid
+      const _id = this._id
+      const parentid = this.parentid
+      // 更新当前节点
+      await this.updateNode(_.merge({}, this.nodeData, {
+        parentid: grandparentid,
+        attributes: { text: text }
+      }))
+      // 将该节点从父节点的子节点数组中移除
+      await this.deleteNodeChildren(_id, parentid)
+      // 将该节点添加到其祖父节点的子节点数组中
+      await this.moveNodeToTargetNode(_id, grandparentid)
+    },
+
     handleTextClick (evt) {},
 
     handleTextFocus (evt) {
@@ -176,65 +206,50 @@ export default {
       this.lazyupdateNode(this.updateNodeText(text))
     },
 
-    async handleKeypressEnter (evt) {
+    handleKeydownEnter (text) {
+      debugger
+      const parentid = this.parentid
+      const _id = this._id
       // 更新该节点，并为父节点添加一个新的子节点
       const addNode = async () => {
-        const parentid = this.parentid
-        const _id = this._id
         const newNode = await this.addNode({ parentid: parentid, previd: _id })
         this.$store.dispatch('updateLastEditNode', newNode._id)
       }
-      const grandparentid = this.grandparentid
 
-      if (evt.target.textContent === '') {
+      if (text === '') {
         // 当前节点的父节点是根节点且没有输入内容，不执行任何操作
-        if (
-          this.parentid === 'root' ||
-          this.parentid === this.$route.params.id
-        ) {
+        if (parentid === 'root' || parentid === this.$route.params.id) {
           return
         }
-
-        // 更新当前节点
-        await this.updateNode(_.merge({}, this.nodeData, {
-          parentid: grandparentid,
-          attributes: { text: evt.target.textContent }
-        }))
-        // indentLeft
-        // 将该节点从父节点的子节点数组中移除
-        await this.deleteNodeChildren(this._id, this.parentid)
-        // 将该节点添加到其祖父节点的子节点数组中
-        await this.moveNodeToTargetNode(this._id, this.grandparentid)
-        // 更新节点的 parentid
+        this.indentLeft(text)
       } else {
         addNode()
       }
     },
 
     handleKeydownDelete (evt) {
+      const previd = this.previd
+
       if (evt.target.textContent === '') {
         this.deleteCurrentNode()
-        if (this.previd) {
-          this.$store.dispatch('updateLastEditNode', this.previd)
+        if (previd) {
+          this.$store.dispatch('updateLastEditNode', previd)
         }
       }
     },
 
-    async handleKeydownTab (evt) {
+    handleKeydownTab (evt) {
       if (this.index < 1) return
 
-      const previd = this.previd
-      // 更新当前节点
-      // 由于在输入的时候文本框的内容是非响应式的，缩进的操作是重新实例化一个节点组件，所以需要先更新数据再缩进
-      await this.updateNode(_.merge({}, this.nodeData, {
-        parentid: previd,
-        attributes: { text: evt.target.textContent }
-      }))
-      // indentRight
-      // 将该节点从父节点的子节点数组中移除
-      await this.deleteNodeChildren(this._id, this.parentid)
-      // 将该节点添加到前一个节点的子节点数组中
-      await this.moveNodeToTargetNode(this._id, this.previd)
+      this.indentRight(evt.target.textContent)
+    },
+
+    handleKeydownShiftAndTab (evt) {
+      this.indentLeft(evt.target.textContent)
+    },
+
+    handleKeydownShiftAndEnter (evt) {
+      debugger
     }
   }
 }
