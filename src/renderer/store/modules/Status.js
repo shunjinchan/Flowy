@@ -4,10 +4,10 @@ const state = {
 }
 
 const mutations = {
-  updateTextFieldFocusStatus ({ status }) {
+  updateTextFieldFocusStatus (state, status) {
     state.textFieldFocus = status
   },
-  updateNoteFieldFocusStatus ({ status }) {
+  updateNoteFieldFocusStatus (state, status) {
     state.noteFieldFocus = status
   }
 }

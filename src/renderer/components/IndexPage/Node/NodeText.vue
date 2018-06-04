@@ -196,20 +196,24 @@ export default {
 
     handleTextFocus (evt) {
       this.$store.dispatch('updateLastEditNode', this._id)
+      this.$store.commit('updateTextFieldFocusStatus', true)
     },
 
     handleTextBlur (evt) {
       this.updateNode(this.updateNodeText(evt.target.textContent))
+      this.$store.commit('updateTextFieldFocusStatus', false)
     },
 
     handleTextInput (text) {
       this.lazyupdateNode(this.updateNodeText(text))
     },
 
-    handleKeydownEnter (text) {
-      debugger
+    handleKeydownEnter (evt) {
+      console.log('enter')
+      evt.preventDefault()
       const parentid = this.parentid
       const _id = this._id
+      const text = evt.target.textContent
       // 更新该节点，并为父节点添加一个新的子节点
       const addNode = async () => {
         const newNode = await this.addNode({ parentid: parentid, previd: _id })
@@ -229,8 +233,9 @@ export default {
 
     handleKeydownDelete (evt) {
       const previd = this.previd
+      const text = evt.target.textContent
 
-      if (evt.target.textContent === '') {
+      if (text === '') {
         this.deleteCurrentNode()
         if (previd) {
           this.$store.dispatch('updateLastEditNode', previd)
@@ -239,6 +244,7 @@ export default {
     },
 
     handleKeydownTab (evt) {
+      evt.preventDefault()
       if (this.index < 1) return
 
       this.indentRight(evt.target.textContent)
@@ -250,7 +256,25 @@ export default {
 
     handleKeydownShiftAndEnter (evt) {
       debugger
+    },
+
+    bindEvents () {
+      this.$root.$on('command:addNode', (evt) => {
+        if (this.isFocus) this.handleKeydownEnter(evt)
+      })
+      this.$root.$on('command:deleteNode', (evt) => {
+        if (this.isFocus) this.handleKeydownDelete(evt)
+      })
+      this.$root.$on('command:indentRight', (evt) => {
+        if (this.isFocus) this.handleKeydownTab(evt)
+      })
+      this.$root.$on('command:indentLeft', (evt) => {
+        if (this.isFocus) this.handleKeydownShiftAndTab(evt)
+      })
     }
+  },
+  mounted () {
+    this.bindEvents()
   }
 }
 </script>

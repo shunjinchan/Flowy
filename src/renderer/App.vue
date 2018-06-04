@@ -5,8 +5,13 @@
 </template>
 
 <script>
+import shortcut from './modules/shortcut'
+
 export default {
-  name: 'flowy'
+  name: 'flowy',
+  mounted () {
+    shortcut.register(this)
+  }
 }
 </script>
 

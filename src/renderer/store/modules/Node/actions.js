@@ -4,12 +4,12 @@ import {
   getNode,
   deleteNode,
   deleteAllNode
-} from '../../../services/node.services'
+} from '../../../services/nodeServices'
 import {
   insertAsync,
   updateAsync,
   findOneAsync
-} from '../../../services/db.services.js'
+} from '../../../services/dbServices'
 
 export default {
   async getNode ({ commit, state }, { _id }) {

@@ -6,16 +6,13 @@
         v-text="text"
         @blur="handleBlur"
         @click="handleClick"
-        @focus="handleFocus"
-        @keydown.delete="handleKeydownDelete"
-        @keydown.tab.prevent="handleKeydownTab"
-        @keydown.shift.tab.prevent="handleKeydownShiftAndTab" >
+        @focus="handleFocus" >
     </div>
   </div>
 </template>
 
 <script>
-import { debounceTime, map, filter } from 'rxjs/operators'
+import { debounceTime, map } from 'rxjs/operators'
 export default {
   name: 'text-field',
 
@@ -55,41 +52,6 @@ export default {
         return () => {}
       },
       require: false
-    },
-    handleKeydownEnter: {
-      type: Function,
-      default () {
-        return () => {}
-      },
-      require: false
-    },
-    handleKeydownDelete: {
-      type: Function,
-      default () {
-        return () => {}
-      },
-      require: false
-    },
-    handleKeydownTab: {
-      type: Function,
-      default () {
-        return () => {}
-      },
-      require: false
-    },
-    handleKeydownShiftAndTab: {
-      type: Function,
-      default () {
-        return () => {}
-      },
-      require: false
-    },
-    handleKeydownShiftAndEnter: {
-      type: Function,
-      default () {
-        return () => {}
-      },
-      require: false
     }
   },
 
@@ -121,55 +83,8 @@ export default {
       })
     },
 
-    observeKeydowns () {
-      const keydowns = this.$fromDOMEvent('.input', 'keydown')
-      const filterKeydowns = (e) => {
-        console.log(e.keyCode)
-        return (
-          e.keyCode === 13 || // enter
-          e.keyCode === 9 || // tab
-          e.keyCode === 8 || // delete
-          e.keyCode === 18 || // alt
-          e.keyCode === 91 || // meta，Mac 对应 command，Windows 徽标键 (⊞)
-          e.keyCode === 38 || // arrow up
-          e.keyCode === 40 || // arrow down
-          e.keyCode === 37 || // arrow left
-          e.keyCode === 39 || // arrow right
-          e.keyCode === 188 || // lt
-          e.keyCode === 190 || // gt
-          e.keyCode === 16 // shift
-        )
-      }
-      const mapKeydowns = (e) => {
-        return {
-          keyCode: e.keyCode,
-          metaKey: e.metaKey,
-          shiftKey: e.shiftKey,
-          textContent: e.target.textContent,
-          event: e
-        }
-      }
-      const subscribeKeydowns = (data) => {
-        // on keydown enter
-        if (data.keyCode === 13 && data.shiftKey === false) {
-          this.handleKeydownEnter(data.textContent)
-          return
-        }
-        // on keydown shift and enter
-        if (data.keyCode === 13 && data.shiftKey === true) {
-          this.handleKeydownShiftAndEnter(data.textContent)
-        }
-      }
-
-      keydowns.pipe(
-        filter(filterKeydowns),
-        map(mapKeydowns)
-      ).subscribe(subscribeKeydowns)
-    },
-
     observe () {
       this.observeInputs()
-      // this.observeKeydowns()
     }
   },
 
