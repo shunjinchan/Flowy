@@ -1,6 +1,5 @@
 <template>
     <main class="board">
-        <command-container />
         <crumb-container />
         <article className="article">
             <root-container />
@@ -11,14 +10,12 @@
 <script>
 import CrumbContainer from './CrumbContainer'
 import RootContainer from './RootContainer'
-import CommandContainer from './CommandContainer'
 
 export default {
   name: 'board',
   components: {
     RootContainer,
-    CrumbContainer,
-    CommandContainer
+    CrumbContainer
   }
 }
 </script>

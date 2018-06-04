@@ -1,17 +1,31 @@
 <template>
     <div class="page index">
-        <h2>Node {{ $route.params.id }}</h2>
+        <header>header</header>
+        <command-container />
         <router-view></router-view>
     </div>
 </template>
 
 <script>
 import Board from './IndexPage/Board'
+import CommandContainer from './IndexPage/CommandContainer'
+import { getLastRouter, setLastRouter } from '@/modules/storage'
 
 export default {
   name: 'index-page',
   components: {
-    Board
+    Board,
+    CommandContainer
+  },
+  mounted () {
+    const lastRouter = getLastRouter() || 'root'
+    this.$router.push({path: lastRouter})
+    setLastRouter(lastRouter)
+  },
+  watch: {
+    '$route' (to, from) {
+      setLastRouter(to.params.id)
+    }
   }
 }
 </script>

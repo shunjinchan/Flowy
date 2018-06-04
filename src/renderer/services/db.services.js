@@ -20,7 +20,7 @@ export async function insertAsync (data) {
     return node
   } catch (error) {
     logger.error({
-      msg: 'error when insert node',
+      msg: 'error when insert Async',
       error
     })
     return null
@@ -41,7 +41,7 @@ export async function updateAsync (query, update, options) {
     }
   } catch (error) {
     logger.error({
-      msg: 'error when update node',
+      msg: 'error when update Async',
       error
     })
     return {}

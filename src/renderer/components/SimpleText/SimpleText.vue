@@ -9,8 +9,7 @@
         @focus="handleFocus"
         @keydown.delete="handleKeydownDelete"
         @keydown.tab.prevent="handleKeydownTab"
-        @keydown.shift.tab.prevent="handleKeydownShiftAndTab"
-        @keydown.shift.enter.prevent="handleKeydownShiftAndEnter" >
+        @keydown.shift.tab.prevent="handleKeydownShiftAndTab" >
     </div>
   </div>
 </template>
@@ -124,7 +123,7 @@ export default {
 
     observeKeydowns () {
       const keydowns = this.$fromDOMEvent('.input', 'keydown')
-      const filterKeyCode = (e) => {
+      const filterKeydowns = (e) => {
         console.log(e.keyCode)
         return (
           e.keyCode === 13 || // enter
@@ -141,18 +140,16 @@ export default {
           e.keyCode === 16 // shift
         )
       }
-
-      keydowns.pipe(
-        filter(filterKeyCode),
-        map(e => {
-          return {
-            keyCode: e.keyCode,
-            metaKey: e.metaKey,
-            shiftKey: e.shiftKey,
-            textContent: e.target.textContent
-          }
-        })
-      ).subscribe(data => {
+      const mapKeydowns = (e) => {
+        return {
+          keyCode: e.keyCode,
+          metaKey: e.metaKey,
+          shiftKey: e.shiftKey,
+          textContent: e.target.textContent,
+          event: e
+        }
+      }
+      const subscribeKeydowns = (data) => {
         // on keydown enter
         if (data.keyCode === 13 && data.shiftKey === false) {
           this.handleKeydownEnter(data.textContent)
@@ -162,12 +159,17 @@ export default {
         if (data.keyCode === 13 && data.shiftKey === true) {
           this.handleKeydownShiftAndEnter(data.textContent)
         }
-      })
+      }
+
+      keydowns.pipe(
+        filter(filterKeydowns),
+        map(mapKeydowns)
+      ).subscribe(subscribeKeydowns)
     },
 
     observe () {
       this.observeInputs()
-      this.observeKeydowns()
+      // this.observeKeydowns()
     }
   },
 

@@ -8,7 +8,7 @@ export default new Router({
     {
       path: '/',
       name: 'index-page',
-      component: require('@/components/IndexPage/Board').default,
+      component: require('@/components/IndexPage').default,
       children: [
         {
           path: ':id',

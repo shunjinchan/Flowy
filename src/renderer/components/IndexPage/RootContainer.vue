@@ -1,5 +1,4 @@
 <script>
-// import _ from 'lodash'
 import Root from './Root'
 
 export default {
@@ -41,6 +40,7 @@ export default {
   },
 
   mounted () {
+    console.log('root container')
     this.getRootNode()
   }
 }
