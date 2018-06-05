@@ -1,4 +1,6 @@
+import { getLastEditNode } from '@/modules/storage'
+
 export default {
   root: {},
-  lastEditNode: {}
+  lastEditNode: getLastEditNode() || 'root'
 }

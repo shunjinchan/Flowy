@@ -1,58 +1,41 @@
 import { keypress } from 'keypress.js'
 import { keyboardShortcut } from '../config/keyboardShortcut'
+import { getLastEditNode } from '@/modules/storage'
 
 const keypressListener = new keypress.Listener()
 
 export default {
-  register (instance) {
+  /**
+   * 注册快捷键
+   * @param {Vue} context Vue 实例
+   */
+  register (context) {
     keypressListener.register_many([
-      {
-        keys: 'enter',
-        is_exclusive: false,
-        on_keydown (e) {
-          // shift 非按下状态与 text filed 是聚焦状态
-          if (!e.shiftKey && instance.$store.state.status.textFieldFocus) {
-            instance.$root.$emit('command:addNode', e)
-          }
-        }
-        // 'this': my_scope
-      },
-      {
-        keys: 'shift enter',
-        is_exclusive: false,
-        on_keydown (e) {
-          console.log(e)
-          console.log('You pressed shift and enter.')
-        }
-      },
       {
         keys: 'tab',
         is_exclusive: false,
-        on_keydown (e) {
-          // shift 非按下状态与 text filed 是聚焦状态
-          if (!e.shiftKey && instance.$store.state.status.textFieldFocus) {
-            instance.$root.$emit('command:indentRight', e)
+        on_keydown (evt) {
+          if (!evt.shiftKey && context.$store.state.status.textFieldFocus) {
+            context.$root.$emit('command:indentRight', {
+              evt,
+              lastEditNode: getLastEditNode()
+            })
           }
-        }
+        },
+        prevent_default: true
       },
       {
         keys: 'shift tab',
         is_exclusive: false,
-        on_keydown (e) {
-          if (e.shiftKey && instance.$store.state.status.textFieldFocus) {
-            instance.$root.$emit('command:indentLeft', e)
+        on_keydown (evt) {
+          if (evt.shiftKey && context.$store.state.status.textFieldFocus) {
+            context.$root.$emit('command:indentLeft', {
+              evt,
+              lastEditNode: getLastEditNode()
+            })
           }
-        }
-      },
-      {
-        keys: 'backspace',
-        is_exclusive: false,
-        on_keydown (e) {
-          // shift 非按下状态与 text filed 是聚焦状态
-          if (instance.$store.state.status.textFieldFocus) {
-            instance.$root.$emit('command:deleteNode', e)
-          }
-        }
+        },
+        prevent_default: true
       }
     ])
   },

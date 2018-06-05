@@ -5,5 +5,13 @@ export function getLastRouter () {
 }
 
 export function setLastRouter (val) {
-  return setLocalStorage('lastRouter', val)
+  setLocalStorage('lastRouter', val)
+}
+
+export function getLastEditNode () {
+  return getLocalStorage('lastEditNode')
+}
+
+export function setLastEditNode (id) {
+  setLocalStorage('lastEditNode', id)
 }

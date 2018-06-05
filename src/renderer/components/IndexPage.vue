@@ -18,13 +18,13 @@ export default {
     CommandContainer
   },
   mounted () {
-    const lastRouter = getLastRouter() || 'root'
+    const lastRouter = 'root'
     this.$router.push({path: lastRouter})
     setLastRouter(lastRouter)
   },
   watch: {
     '$route' (to, from) {
-      setLastRouter(to.params.id)
+      // setLastRouter(to.params.id)
     }
   }
 }

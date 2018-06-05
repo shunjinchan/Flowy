@@ -117,36 +117,31 @@ export default {
     return affectedDocuments
   },
 
-  async deleteNodeChildren ({ commit, dispatch }, { _id, parentid }) {
-    let parentNode = await getNode({ _id: parentid })
-
+  async deleteNodeChildren ({ commit, dispatch }, { _id, targetid }) {
+    let targetNode = await getNode({ _id: targetid })
     // 更新父节点
-    if (parentNode && !_.isEmpty(parentNode)) {
-      const index = parentNode.children.indexOf(_id)
-      parentNode.children.splice(index, 1)
-      parentNode = await dispatch('updateNode', parentNode)
+    if (targetNode && !_.isEmpty(targetNode)) {
+      const index = targetNode.children.indexOf(_id)
+      targetNode.children.splice(index, 1)
+      targetNode = await dispatch('updateNode', targetNode)
     }
-
-    return parentNode
+    return targetNode
   },
 
   async addNodeChildren ({ commit, dispatch }, { _id, targetid }) {
     let targetNode = await getNode({ _id: targetid })
-
     // 更新目标节点
     if (targetNode && !_.isEmpty(targetNode)) {
       targetNode.children.push(_id)
       targetNode = await dispatch('updateNode', targetNode)
     }
-
     return targetNode
   },
 
   async getRootNode ({ commit, dispatch, state }, { _id }) {
-    let nodeList = await dispatch('getAllNode')
-    let rootNode = {}
+    let rootNode = await getNode({ _id: 'root' })
 
-    if (!nodeList || _.isEmpty(nodeList)) {
+    if (!rootNode || _.isEmpty(rootNode)) {
       rootNode = await insertAsync({
         attributes: { text: 'Home', note: '' },
         children: [],
@@ -155,17 +150,20 @@ export default {
       })
       commit('insertNode', rootNode)
     } else {
+      let nodeList = await dispatch('getAllNode')
       nodeList.forEach(node => {
         if (node._id === _id) rootNode = node
       })
       commit('setAllNode', nodeList)
     }
+
     // 如果 rootNode 为空，重定向到首页
     if (_.isEmpty(rootNode)) {
       location.href = '/'
-    }
-    if (!rootNode.children || rootNode.children.length === 0) {
-      await dispatch('addNode', { parentid: rootNode._id })
+    } else {
+      if (!rootNode.children || rootNode.children.length === 0) {
+        await dispatch('addNode', { parentid: rootNode._id })
+      }
     }
 
     return rootNode
@@ -182,26 +180,5 @@ export default {
     // await dispatch('initRootNode')
     // await dispatch('addNode', { parentid: 'root' })
     return numRemoved
-  },
-
-  async updateLastEditNode ({ commit }, _id) {
-    let data = await findOneAsync({ _id: 'lastEditNode' })
-
-    if (!data || _.isEmpty(data)) {
-      data = await insertAsync({
-        _id: 'lastEditNode',
-        nodeid: _id
-      })
-    } else {
-      let { affectedDocuments } = await updateAsync(
-        { _id: 'lastEditNode' },
-        { nodeid: _id },
-        { returnUpdatedDocs: true }
-      )
-      data = affectedDocuments
-    }
-    commit('updateLastEditNode', data)
-
-    return data
   }
 }

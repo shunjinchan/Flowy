@@ -6,7 +6,9 @@
         v-text="text"
         @blur="handleBlur"
         @click="handleClick"
-        @focus="handleFocus" >
+        @focus="handleFocus"
+        @keydown.enter.prevent="handleKeydownEnter"
+        @keydown.delete="handleKeydownDelete" >
     </div>
   </div>
 </template>
@@ -47,6 +49,27 @@ export default {
       require: false
     },
     handleBlur: {
+      type: Function,
+      default () {
+        return () => {}
+      },
+      require: false
+    },
+    handleKeydownEnter: {
+      type: Function,
+      default () {
+        return () => {}
+      },
+      require: false
+    },
+    handleKeydownDelete: {
+      type: Function,
+      default () {
+        return () => {}
+      },
+      require: false
+    },
+    handleKeydownTab: {
       type: Function,
       default () {
         return () => {}

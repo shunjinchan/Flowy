@@ -1,4 +1,5 @@
 import Vue from 'vue'
+import { setLastEditNode } from '@/modules/storage'
 
 export default {
   /**
@@ -49,7 +50,8 @@ export default {
     }
   },
 
-  updateLastEditNode (state, data) {
-    state.lastEditNode = data
+  updateLastEditNode (state, _id) {
+    state.lastEditNode = _id
+    setLastEditNode(_id)
   }
 }
