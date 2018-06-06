@@ -7,8 +7,7 @@ import {
 } from '../../../services/nodeServices'
 import {
   insertAsync,
-  updateAsync,
-  findOneAsync
+  updateAsync
 } from '../../../services/dbServices'
 
 export default {
@@ -128,12 +127,18 @@ export default {
     return targetNode
   },
 
-  async addNodeChildren ({ commit, dispatch }, { _id, targetid }) {
+  async addNodeChildren ({ commit, dispatch }, { _id, targetid, previd }) {
     let targetNode = await getNode({ _id: targetid })
     // 更新目标节点
     if (targetNode && !_.isEmpty(targetNode)) {
-      targetNode.children.push(_id)
-      targetNode = await dispatch('updateNode', targetNode)
+      if (previd) {
+        let index = targetNode.children.indexOf(previd)
+        targetNode.children.splice(index + 1, 0, _id)
+        targetNode = await dispatch('updateNode', targetNode)
+      } else {
+        targetNode.children.push(_id)
+        targetNode = await dispatch('updateNode', targetNode)
+      }
     }
     return targetNode
   },

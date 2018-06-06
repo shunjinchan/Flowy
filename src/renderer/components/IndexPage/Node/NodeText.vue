@@ -7,14 +7,19 @@
     <bullet-button :isCollapsed="isCollapsed"
                    :handleClick="handleBulletClick" />
     <text-field :text="text"
-                :isFocus="isFocus"
+                :isFocus="isFocusTextField"
                 :handleClick="handleTextClick"
                 :handleFocus="handleTextFocus"
                 :handleBlur="handleTextBlur"
                 :handleKeydownTab="handleKeydownTab"
                 :handleKeydownEnter="handleKeydownEnter"
                 :handleKeydownDelete="handleKeydownDelete"
+                :handleKeydownShiftAndTab="handleKeydownShiftAndTab"
                 :handleInput="handleTextInput" />
+    <!-- <div>
+      <span>id: {{ _id }}</span>
+      <span>parentid: {{ parentid }}</span>
+    </div> -->
   </div>
 </template>
 
@@ -66,6 +71,9 @@ export default {
     isCollapsed: {
       type: Boolean
     },
+    isFocusTextField: {
+      type: Boolean
+    },
     expandChildren: {
       type: Function
     },
@@ -86,9 +94,6 @@ export default {
   },
 
   computed: {
-    lastEditNode () {
-      return this.$store.getters.lastEditNode
-    },
     _id () {
       return this.nodeData._id
     },
@@ -96,10 +101,6 @@ export default {
       // 响应式：更新会将输入框的聚焦状态置换到首字符之前
       // 不是响应式：无法响应更新，例如路由跳转后
       return _.get(this.nodeData, 'attributes.text') || ''
-    },
-    isFocus () {
-      if (this.lastEditNode === this._id) return true
-      return false
     }
   },
 
@@ -121,7 +122,7 @@ export default {
       return numRemoved
     },
 
-    async deleteNodeFromTargetNode (_id, targetid) {
+    async deleteNodeFromSourceNode (_id, targetid) {
       const targetNodeData = await this.$store.dispatch(
         'deleteNodeChildren',
         { _id, targetid }
@@ -130,10 +131,10 @@ export default {
     },
 
     // 将节点设置为其目标节点的子节点
-    async moveNodeToTargetNode (_id, targetid) {
+    async moveNodeToTargetNode (_id, targetid, previd) {
       const targetNodeData = await this.$store.dispatch(
         'addNodeChildren',
-        { _id, targetid }
+        { _id, targetid, previd }
       )
       return targetNodeData
     },
@@ -163,32 +164,31 @@ export default {
       const previd = this.previd
       const _id = this._id
       const parentid = this.parentid
-
       // 由于在输入的时候文本框的内容是非响应式的，缩进的操作是重新实例化一个节点组件，所以需要先更新数据再缩进
+      // 将该节点从父节点的子节点数组中移除
+      await this.deleteNodeFromSourceNode(_id, parentid)
+      // 将该节点添加到前一个节点的子节点数组中
+      await this.moveNodeToTargetNode(_id, previd)
       // 更新当前节点
       await this.updateNode(_.merge({}, this.nodeData, {
         parentid: previd,
         attributes: { text: text }
       }))
-      // 将该节点从父节点的子节点数组中移除
-      await this.deleteNodeFromTargetNode(_id, parentid)
-      // 将该节点添加到前一个节点的子节点数组中
-      await this.moveNodeToTargetNode(_id, previd)
     },
 
     async indentLeft (text) {
       const grandparentid = this.grandparentid
       const _id = this._id
       const parentid = this.parentid
+      // 将该节点从父节点的子节点数组中移除
+      await this.deleteNodeFromSourceNode(_id, parentid)
+      // 将该节点添加到其祖父节点的子节点数组中
+      await this.moveNodeToTargetNode(_id, grandparentid, parentid)
       // 更新当前节点
       await this.updateNode(_.merge({}, this.nodeData, {
         parentid: grandparentid,
         attributes: { text: text }
       }))
-      // 将该节点从父节点的子节点数组中移除
-      await this.deleteNodeFromTargetNode(_id, parentid)
-      // 将该节点添加到其祖父节点的子节点数组中
-      await this.moveNodeToTargetNode(_id, grandparentid)
     },
 
     handleTextClick (evt) {},
@@ -222,22 +222,24 @@ export default {
       const previd = this.previd
       const text = evt.target.textContent
 
-      if (text === '' && this.index > 0 && this.parentid !== 'root') {
+      if (text === '') {
+        //  最后一个根节点的子节点不需要删除
+        if (this.parentid === 'root' && this.index === 0) return
         this.deleteCurrentNode()
-        if (previd) {
-          this.$store.commit('updateLastEditNode', previd)
-        }
+        previd && this.$store.commit('updateLastEditNode', previd)
       }
     },
 
-    handleKeydownTab (evt) {
+    handleKeydownTab ({evt, lastEditNode}) {
+      // 第一个子节点不需要右缩进
       if (this.index < 1) return
-      this.indentRight(evt.target.textContent)
+      if (this._id === lastEditNode) this.indentRight(evt.target.textContent)
     },
 
-    handleKeydownShiftAndTab (evt) {
+    handleKeydownShiftAndTab ({evt, lastEditNode}) {
+      // 父节点是根节点，不需要左缩进
       if (this.parentid === 'root') return
-      this.indentLeft(evt.target.textContent)
+      if (this._id === lastEditNode) this.indentLeft(evt.target.textContent)
     },
 
     handleKeydownShiftAndEnter (evt) {
@@ -245,16 +247,19 @@ export default {
     },
 
     bindEvents () {
-      this.$root.$on('command:indentRight', ({evt, lastEditNode}) => {
-        if (this._id === lastEditNode) this.handleKeydownTab(evt)
-      })
-      this.$root.$on('command:indentLeft', ({evt, lastEditNode}) => {
-        if (this._id === lastEditNode) this.handleKeydownShiftAndTab(evt)
-      })
+      this.$root.$on('command:indentRight', this.handleKeydownTab)
+      this.$root.$on('command:indentLeft', this.handleKeydownShiftAndTab)
+      // this.$root.$on('command:addNote', ({evt, lastEditNode}) => {})
     }
   },
+
   mounted () {
     this.bindEvents()
+  },
+
+  beforeDestroy () {
+    this.$root.$off('command:indentRight', this.handleKeydownTab)
+    this.$root.$off('command:indentLeft', this.handleKeydownShiftAndTab)
   }
 }
 </script>
@@ -265,7 +270,7 @@ export default {
   line-height: 20px;
   padding-top: 4px;
   position: relative;
-  .text-field {
+  .simple-text {
     flex-grow: 1;
   }
   .collapse-button, .expand-button {
@@ -277,6 +282,11 @@ export default {
     .collapse-button, .expand-button {
       opacity: 1;
     }
+  }
+  span {
+    background-color: #abcdef;
+    margin-left: 10px;
+    font-size: 12px;
   }
 }
 </style>

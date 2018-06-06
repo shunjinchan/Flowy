@@ -1,10 +1,11 @@
 <template>
-  <section class="node">
+  <section class="node" :data-id="nodeData._id" ref="node">
     <node-text :nodeData="nodeData"
                :parentid="parentid"
                :previd="previd"
                :index="index"
                :grandparentid="grandparentid"
+               :isFocusTextField="isFocusTextField"
                :isCollapsed="isCollapsed"
                :renderCollapseButton="hasChildren && isExpanded"
                :renderExpandButton="hasChildren && isCollapsed"
@@ -12,8 +13,11 @@
                :expandChildren="expandChildren"
                :lazyupdateNode="lazyupdateNode" 
                :updateNode="updateNode" />
+
     <node-note :nodeData="nodeData"
-               :parentid="parentid" />
+               :parentid="parentid"
+               :updateNode="updateNode" />
+
     <node-children v-if="hasChildren && isExpanded"
                    :nodeData="nodeData"
                    :parentid="parentid" />
@@ -100,6 +104,15 @@ export default {
 
     isCollapsed () {
       return !this.isExpanded
+    },
+
+    lastEditNode () {
+      return this.$store.getters.lastEditNode
+    },
+
+    isFocusTextField () {
+      if (this.lastEditNode === this.nodeData._id) return true
+      return false
     }
   },
 
@@ -130,7 +143,27 @@ export default {
         attributes: { isExpanded: true }
       })
       this.updateNode(data)
-    }
+    },
+
+    updateHeight (height) {
+      this.$refs.node.setAttribute(
+        'style',
+        `min-height: ${height}px`
+      )
+    },
+
+    bindEvents () {}
+  },
+
+  mounted () {
+    this.$nextTick(() => {
+      const height = this.$refs.node.clientHeight
+      this.updateHeight(height)
+    })
+  },
+
+  beforeDestroy () {
+    console.log('before destory')
   }
 }
 </script>

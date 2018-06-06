@@ -1,5 +1,5 @@
 <template>
-  <div class="text-field">
+  <div class="simple-text">
     <div class="input"
         contenteditable
         ref="input"
@@ -7,16 +7,15 @@
         @blur="handleBlur"
         @click="handleClick"
         @focus="handleFocus"
-        @keydown.enter.prevent="handleKeydownEnter"
         @keydown.delete="handleKeydownDelete" >
     </div>
   </div>
 </template>
 
 <script>
-import { debounceTime, map } from 'rxjs/operators'
+import { debounceTime, map, filter } from 'rxjs/operators'
 export default {
-  name: 'text-field',
+  name: 'simple-text',
 
   props: {
     text: {
@@ -75,6 +74,13 @@ export default {
         return () => {}
       },
       require: false
+    },
+    handleKeydownShiftAndTab: {
+      type: Function,
+      default () {
+        return () => {}
+      },
+      require: false
     }
   },
 
@@ -106,8 +112,50 @@ export default {
       })
     },
 
+    observeKeydowns () {
+      const keydowns = this.$fromDOMEvent('.input', 'keydown')
+      const filterKeydowns = (e) => {
+        console.log(e.keyCode)
+        return (
+          e.keyCode === 13 || // enter
+          e.keyCode === 9 || // tab
+          e.keyCode === 8 || // delete/backspace
+          e.keyCode === 18 || // alt[altKey]
+          e.keyCode === 91 || // meta[metaKey]，Mac 对应 command，Windows 徽标键 (⊞)
+          e.keyCode === 38 || // arrow up
+          e.keyCode === 40 || // arrow down
+          e.keyCode === 37 || // arrow left
+          e.keyCode === 39 || // arrow right
+          e.keyCode === 188 || // lt
+          e.keyCode === 190 || // gt
+          e.keyCode === 16 // shift[shitfKey]
+        )
+      }
+      const mapKeydowns = (e) => {
+        return {
+          keyCode: e.keyCode,
+          metaKey: e.metaKey,
+          shiftKey: e.shiftKey,
+          textContent: e.target.textContent,
+          event: e
+        }
+      }
+      const subscribeKeydowns = (data) => {
+        // on keydown enter
+        if (data.keyCode === 13 && data.shiftKey === false) {
+          this.handleKeydownEnter(data.event)
+        }
+      }
+
+      keydowns.pipe(
+        filter(filterKeydowns),
+        map(mapKeydowns)
+      ).subscribe(subscribeKeydowns)
+    },
+
     observe () {
       this.observeInputs()
+      this.observeKeydowns()
     }
   },
 

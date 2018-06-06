@@ -1,29 +1,97 @@
 <template>
-    <div class="node-note">{{ note }}</div>
+  <div class="node-note" v-if="isFocus || note">
+    <note-field :isFocus="isFocus" 
+                :text="note"
+                :handleFocus="handleTextFocus"
+                :handleBlur="handleTextBlur" />
+  </div>
 </template>
 
 <script>
-  import _ from 'lodash'
+import _ from 'lodash'
+import NoteField from './NoteField'
 
-  export default {
-    name: 'node-note',
-    props: {
-      nodeData: {
-        type: Object
-      },
-      parentid: {
-        type: String
-      }
-    },
-    computed: {
-      note () {
-        return _.get(this.nodeData, 'attributes.note')
-      }
+export default {
+  name: 'node-note',
+
+  data () {
+    return {
+      isFocus: false
     }
+  },
+
+  props: {
+    nodeData: {
+      type: Object
+    },
+    parentid: {
+      type: String
+    },
+    updateNode: {
+      type: Function,
+      default () {
+        return () => {}
+      },
+      require: false
+    }
+  },
+
+  computed: {
+    _id () {
+      return this.nodeData._id
+    },
+
+    note () {
+      return _.get(this.nodeData, 'attributes.note')
+    }
+  },
+
+  components: {
+    NoteField
+  },
+
+  methods: {
+    handleTextFocus (evt) {
+      this.$store.commit('updateNoteFieldFocusStatus', true)
+      this.isFocus = true
+    },
+
+    handleTextBlur (evt) {
+      this.$store.commit('updateNoteFieldFocusStatus', false)
+      this.isFocus = false
+    },
+
+    addNodeNote ({evt, lastEditNode}) {
+      if (this._id === lastEditNode) this.isFocus = true
+    },
+
+    async updateNodeNote ({evt, lastEditNode}) {
+      if (this._id !== lastEditNode) return
+
+      const data = _.merge({}, this.nodeData, {
+        attributes: { note: evt.target.textContent }
+      })
+      await this.updateNode(data)
+    },
+
+    bindEvents () {
+      this.$root.$on('command:addNodeNote', this.addNodeNote)
+      this.$root.$on('command:updateNodeNote', this.updateNodeNote)
+    }
+  },
+
+  mounted () {
+    this.bindEvents()
+  },
+
+  beforeDestroy () {
+    this.$root.$off('command:addNodeNote', this.addNodeNote)
+    this.$root.$off('command:updateNodeNote', this.updateNodeNote)
   }
+}
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
 .node-note {
     color: #999;
     font-size: 13px;

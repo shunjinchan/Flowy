@@ -33,10 +33,16 @@
 
       const parentid = this.nodeData._id
       const grandparentid = this.parentid
-      const ele = this.children.map((item, index) => {
-        const childNodeData = this.$store.getters.getNode(item) || {}
+      const ele = this.children.map((nodeid, index) => {
+        const childNodeData = this.$store.getters.getNode(nodeid) || {}
         return (
-          <Node nodeData={childNodeData} index={index} parentid={parentid} grandparentid={grandparentid} key={childNodeData._id} />
+          <Node
+            nodeData={childNodeData}
+            index={index}
+            parentid={parentid}
+            grandparentid={grandparentid}
+            key={childNodeData._id}
+          />
         )
       })
 

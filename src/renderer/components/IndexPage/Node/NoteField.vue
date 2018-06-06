@@ -2,7 +2,7 @@
 import SimpleText from '../../SimpleText/SimpleText'
 
 export default {
-  name: 'text-field',
+  name: 'note-field',
   mixins: [SimpleText]
 }
 </script>

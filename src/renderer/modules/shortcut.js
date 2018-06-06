@@ -1,8 +1,40 @@
 import { keypress } from 'keypress.js'
-import { keyboardShortcut } from '../config/keyboardShortcut'
+// import { keyboardShortcut } from '../config/keyboardShortcut'
 import { getLastEditNode } from '@/modules/storage'
 
-const keypressListener = new keypress.Listener()
+function handleKeydownTab (evt) {
+  if (!evt.shiftKey && this.$store.state.status.textFieldFocus) {
+    this.$root.$emit('command:indentRight', {
+      evt,
+      lastEditNode: getLastEditNode()
+    })
+  }
+}
+
+function handleKeydownShiftAndTab (evt) {
+  if (this.$store.state.status.textFieldFocus) {
+    this.$root.$emit('command:indentLeft', {
+      evt,
+      lastEditNode: getLastEditNode()
+    })
+  }
+}
+
+function handleKeydownShiftAndEnter (evt) {
+  if (this.$store.state.status.textFieldFocus) {
+    this.$root.$emit('command:addNodeNote', {
+      evt,
+      lastEditNode: getLastEditNode()
+    })
+    return
+  }
+  if (this.$store.state.status.noteFieldFocus) {
+    this.$root.$emit('command:updateNodeNote', {
+      evt,
+      lastEditNode: getLastEditNode()
+    })
+  }
+}
 
 export default {
   /**
@@ -10,34 +42,30 @@ export default {
    * @param {Vue} context Vue 实例
    */
   register (context) {
-    keypressListener.register_many([
+    if (this.keypressListener) return
+
+    this.keypressListener = new keypress.Listener()
+    this.keypressListener.register_many([
       {
         keys: 'tab',
         is_exclusive: false,
-        on_keydown (evt) {
-          if (!evt.shiftKey && context.$store.state.status.textFieldFocus) {
-            context.$root.$emit('command:indentRight', {
-              evt,
-              lastEditNode: getLastEditNode()
-            })
-          }
-        },
+        on_keydown: handleKeydownTab.bind(context),
         prevent_default: true
       },
       {
         keys: 'shift tab',
         is_exclusive: false,
-        on_keydown (evt) {
-          if (evt.shiftKey && context.$store.state.status.textFieldFocus) {
-            context.$root.$emit('command:indentLeft', {
-              evt,
-              lastEditNode: getLastEditNode()
-            })
-          }
-        },
+        on_keydown: handleKeydownShiftAndTab.bind(context),
+        prevent_default: true
+      },
+      {
+        keys: 'shift enter',
+        is_exclusive: false,
+        on_keydown: handleKeydownShiftAndEnter.bind(context),
         prevent_default: true
       }
     ])
   },
+
   unRegister () {}
 }
