@@ -11,7 +11,7 @@
                :renderExpandButton="hasChildren && isCollapsed"
                :collapseChildren="collapseChildren"
                :expandChildren="expandChildren"
-               :lazyupdateNode="lazyupdateNode" 
+               :lazyUpdateNode="lazyUpdateNode" 
                :updateNode="updateNode" />
 
     <node-note :nodeData="nodeData"
@@ -124,9 +124,9 @@ export default {
       return affectedDocuments
     },
 
-    async lazyupdateNode (nodeData) {
+    async lazyUpdateNode (nodeData) {
       const affectedDocuments = await this.$store.dispatch(
-        'lazyupdateNode', nodeData
+        'lazyUpdateNode', nodeData
       )
       return affectedDocuments
     },

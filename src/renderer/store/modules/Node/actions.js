@@ -107,7 +107,7 @@ export default {
    * @param nodeData
    * @returns {Promise<object>}
    */
-  async lazyupdateNode ({ commit }, nodeData) {
+  async lazyUpdateNode ({ commit }, nodeData) {
     const { affectedDocuments } = await updateAsync(
       { _id: nodeData._id },
       nodeData,
@@ -116,32 +116,32 @@ export default {
     return affectedDocuments
   },
 
-  async deleteNodeChildren ({ commit, dispatch }, { _id, targetid }) {
-    let targetNode = await getNode({ _id: targetid })
-    // 更新父节点
-    if (targetNode && !_.isEmpty(targetNode)) {
-      const index = targetNode.children.indexOf(_id)
-      targetNode.children.splice(index, 1)
-      targetNode = await dispatch('updateNode', targetNode)
-    }
-    return targetNode
-  },
+  // async deleteNodeChildren ({ commit, dispatch }, { _id, targetid }) {
+  //   let targetNode = await getNode({ _id: targetid })
+  //   // 更新父节点
+  //   if (targetNode && !_.isEmpty(targetNode)) {
+  //     const index = targetNode.children.indexOf(_id)
+  //     targetNode.children.splice(index, 1)
+  //     targetNode = await dispatch('updateNode', targetNode)
+  //   }
+  //   return targetNode
+  // },
 
-  async addNodeChildren ({ commit, dispatch }, { _id, targetid, previd }) {
-    let targetNode = await getNode({ _id: targetid })
-    // 更新目标节点
-    if (targetNode && !_.isEmpty(targetNode)) {
-      if (previd) {
-        let index = targetNode.children.indexOf(previd)
-        targetNode.children.splice(index + 1, 0, _id)
-        targetNode = await dispatch('updateNode', targetNode)
-      } else {
-        targetNode.children.push(_id)
-        targetNode = await dispatch('updateNode', targetNode)
-      }
-    }
-    return targetNode
-  },
+  // async addNodeChildren ({ commit, dispatch }, { _id, targetid, previd }) {
+  //   let targetNode = await getNode({ _id: targetid })
+  //   // 更新目标节点
+  //   if (targetNode && !_.isEmpty(targetNode)) {
+  //     if (previd) {
+  //       let index = targetNode.children.indexOf(previd)
+  //       targetNode.children.splice(index + 1, 0, _id)
+  //       targetNode = await dispatch('updateNode', targetNode)
+  //     } else {
+  //       targetNode.children.push(_id)
+  //       targetNode = await dispatch('updateNode', targetNode)
+  //     }
+  //   }
+  //   return targetNode
+  // },
 
   async getRootNode ({ commit, dispatch, state }, { _id }) {
     let rootNode = await getNode({ _id: 'root' })

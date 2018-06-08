@@ -11,15 +11,13 @@
                 :handleClick="handleTextClick"
                 :handleFocus="handleTextFocus"
                 :handleBlur="handleTextBlur"
-                :handleKeydownTab="handleKeydownTab"
                 :handleKeydownEnter="handleKeydownEnter"
                 :handleKeydownDelete="handleKeydownDelete"
-                :handleKeydownShiftAndTab="handleKeydownShiftAndTab"
                 :handleInput="handleTextInput" />
-    <!-- <div>
+    <div>
       <span>id: {{ _id }}</span>
       <span>parentid: {{ parentid }}</span>
-    </div> -->
+    </div>
   </div>
 </template>
 
@@ -77,7 +75,7 @@ export default {
     expandChildren: {
       type: Function
     },
-    lazyupdateNode: {
+    lazyUpdateNode: {
       type: Function,
       default () {
         return () => {}
@@ -122,21 +120,27 @@ export default {
       return numRemoved
     },
 
-    async deleteNodeFromSourceNode (_id, targetid) {
-      const targetNodeData = await this.$store.dispatch(
-        'deleteNodeChildren',
-        { _id, targetid }
-      )
-      return targetNodeData
+    deleteNodeFromSourceNode (_id, sourceid) {
+      const sourceNode = _.cloneDeep(this.$store.state.node[sourceid])
+      const index = sourceNode.children.indexOf(_id)
+
+      sourceNode.children.splice(index, 1)
+      this.$store.commit('updateNode', sourceNode)
+      this.updateNode(sourceNode)
     },
 
-    // 将节点设置为其目标节点的子节点
-    async moveNodeToTargetNode (_id, targetid, previd) {
-      const targetNodeData = await this.$store.dispatch(
-        'addNodeChildren',
-        { _id, targetid, previd }
-      )
-      return targetNodeData
+    moveNodeToTargetNode (_id, targetid, previd) {
+      const targetNode = _.cloneDeep(this.$store.state.node[targetid])
+
+      if (previd) {
+        let index = targetNode.children.indexOf(previd)
+        targetNode.children.splice(index + 1, 0, _id)
+      } else {
+        targetNode.children.push(_id)
+      }
+
+      this.$store.commit('updateNode', targetNode)
+      this.updateNode(targetNode)
     },
 
     // bullet-button
@@ -160,32 +164,27 @@ export default {
       return data
     },
 
-    async indentRight (text) {
+    indentRight (text) {
       const previd = this.previd
       const _id = this._id
       const parentid = this.parentid
-      // 由于在输入的时候文本框的内容是非响应式的，缩进的操作是重新实例化一个节点组件，所以需要先更新数据再缩进
-      // 将该节点从父节点的子节点数组中移除
-      await this.deleteNodeFromSourceNode(_id, parentid)
-      // 将该节点添加到前一个节点的子节点数组中
-      await this.moveNodeToTargetNode(_id, previd)
-      // 更新当前节点
-      await this.updateNode(_.merge({}, this.nodeData, {
+
+      this.deleteNodeFromSourceNode(_id, parentid)
+      this.moveNodeToTargetNode(_id, previd)
+      this.updateNode(_.merge({}, this.nodeData, {
         parentid: previd,
         attributes: { text: text }
       }))
     },
 
-    async indentLeft (text) {
+    indentLeft (text) {
       const grandparentid = this.grandparentid
       const _id = this._id
       const parentid = this.parentid
-      // 将该节点从父节点的子节点数组中移除
-      await this.deleteNodeFromSourceNode(_id, parentid)
-      // 将该节点添加到其祖父节点的子节点数组中
-      await this.moveNodeToTargetNode(_id, grandparentid, parentid)
-      // 更新当前节点
-      await this.updateNode(_.merge({}, this.nodeData, {
+
+      this.deleteNodeFromSourceNode(_id, parentid)
+      this.moveNodeToTargetNode(_id, grandparentid, parentid)
+      this.updateNode(_.merge({}, this.nodeData, {
         parentid: grandparentid,
         attributes: { text: text }
       }))
@@ -204,15 +203,17 @@ export default {
     },
 
     handleTextInput (text) {
-      this.lazyupdateNode(this.updateNodeText(text))
+      this.lazyUpdateNode(this.updateNodeText(text))
     },
 
     async handleKeydownEnter (evt) {
       const parentid = this.parentid
       const _id = this._id
+      const text = evt.target.textContent
 
-      await this.updateNode(this.updateNodeText(evt.target.textContent))
-      if (evt.target.textContent !== '') {
+      evt.preventDefault()
+      await this.updateNode(this.updateNodeText(text))
+      if (text !== '') {
         const newNode = await this.addNode({ parentid: parentid, previd: _id })
         this.$store.commit('updateLastEditNode', newNode._id)
       }
@@ -223,6 +224,7 @@ export default {
       const text = evt.target.textContent
 
       if (text === '') {
+        evt.preventDefault()
         //  最后一个根节点的子节点不需要删除
         if (this.parentid === 'root' && this.index === 0) return
         this.deleteCurrentNode()
@@ -249,7 +251,6 @@ export default {
     bindEvents () {
       this.$root.$on('command:indentRight', this.handleKeydownTab)
       this.$root.$on('command:indentLeft', this.handleKeydownShiftAndTab)
-      // this.$root.$on('command:addNote', ({evt, lastEditNode}) => {})
     }
   },
 

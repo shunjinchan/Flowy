@@ -3,6 +3,7 @@ import { keypress } from 'keypress.js'
 import { getLastEditNode } from '@/modules/storage'
 
 function handleKeydownTab (evt) {
+  evt.preventDefault()
   if (!evt.shiftKey && this.$store.state.status.textFieldFocus) {
     this.$root.$emit('command:indentRight', {
       evt,
@@ -12,6 +13,7 @@ function handleKeydownTab (evt) {
 }
 
 function handleKeydownShiftAndTab (evt) {
+  evt.preventDefault()
   if (this.$store.state.status.textFieldFocus) {
     this.$root.$emit('command:indentLeft', {
       evt,
@@ -49,20 +51,17 @@ export default {
       {
         keys: 'tab',
         is_exclusive: false,
-        on_keydown: handleKeydownTab.bind(context),
-        prevent_default: true
+        on_keydown: handleKeydownTab.bind(context)
       },
       {
         keys: 'shift tab',
         is_exclusive: false,
-        on_keydown: handleKeydownShiftAndTab.bind(context),
-        prevent_default: true
+        on_keydown: handleKeydownShiftAndTab.bind(context)
       },
       {
         keys: 'shift enter',
         is_exclusive: false,
-        on_keydown: handleKeydownShiftAndEnter.bind(context),
-        prevent_default: true
+        on_keydown: handleKeydownShiftAndEnter.bind(context)
       }
     ])
   },

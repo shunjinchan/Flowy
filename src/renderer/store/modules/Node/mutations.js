@@ -1,4 +1,5 @@
 import Vue from 'vue'
+import _ from 'lodash'
 import { setLastEditNode } from '@/modules/storage'
 
 export default {
