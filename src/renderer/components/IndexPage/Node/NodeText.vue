@@ -14,10 +14,10 @@
                 :handleKeydownEnter="handleKeydownEnter"
                 :handleKeydownDelete="handleKeydownDelete"
                 :handleInput="handleTextInput" />
-    <div>
+    <!-- <div>
       <span>id: {{ _id }}</span>
-      <span>parentid: {{ parentid }}</span>
-    </div>
+      <span>nextid: {{ nextid }}</span>
+    </div> -->
   </div>
 </template>
 
@@ -50,6 +50,9 @@ export default {
       type: String
     },
     previd: {
+      type: String
+    },
+    nextid: {
       type: String
     },
     grandparentid: {
@@ -129,7 +132,6 @@ export default {
         targetNode.children.push(_id)
       }
 
-      this.$store.commit('updateNode', targetNode)
       this.updateNode(targetNode)
     },
 
@@ -141,8 +143,10 @@ export default {
         parentid: previd,
         _id: _id
       }
+
       this.$store.commit('addNode', newNode)
       this.$store.dispatch('addNode', newNode)
+
       return newNode
     },
 
@@ -155,7 +159,6 @@ export default {
       const index = sourceNode.children.indexOf(_id)
 
       sourceNode.children.splice(index, 1)
-      this.$store.commit('updateNode', sourceNode)
       this.updateNode(sourceNode)
     },
 
@@ -169,7 +172,6 @@ export default {
         targetNode.children.push(_id)
       }
 
-      this.$store.commit('updateNode', targetNode)
       this.updateNode(targetNode)
     },
 
@@ -177,6 +179,7 @@ export default {
       const data = _.merge({}, this.nodeData, {
         attributes: { text: text }
       })
+
       return data
     },
 
@@ -204,6 +207,17 @@ export default {
         parentid: grandparentid,
         attributes: { text: text }
       }))
+    },
+
+    swapNodePosition (sourceid, targetid, parentid) {
+      const parentNode = _.cloneDeep(this.$store.state.node[parentid])
+      const sourceIndex = parentNode.children.indexOf(sourceid)
+      const targetIndex = parentNode.children.indexOf(targetid)
+
+      parentNode.children[targetIndex] = sourceid
+      parentNode.children[sourceIndex] = targetid
+      this.updateNode(parentNode)
+      // this.$store.commit('updateLastEditNode', this.sourceid)
     },
 
     handleTextClick (evt) {},
@@ -250,13 +264,13 @@ export default {
       }
     },
 
-    handleKeydownTab ({evt, lastEditNode}) {
+    handleIndentRight ({evt, lastEditNode}) {
       // 第一个子节点不需要右缩进
       if (this.index < 1) return
       if (this._id === lastEditNode) this.indentRight(evt.target.textContent)
     },
 
-    handleKeydownShiftAndTab ({evt, lastEditNode}) {
+    handleIndentLeft ({evt, lastEditNode}) {
       // 父节点是根节点，不需要左缩进
       if (this.parentid === 'root') return
       if (this._id === lastEditNode) this.indentLeft(evt.target.textContent)
@@ -266,9 +280,73 @@ export default {
       debugger
     },
 
+    // TODO: 跨层级聚焦
+    handleFocusPrevNode ({ evt, lastEditNode }) {
+      if (this._id !== lastEditNode) return
+
+      const previd = this.previd
+      const parentid = this.parentid
+
+      if (previd) {
+        const prevNodeChildren = this.$store.getters.getNode(previd).children
+
+        // 去过前一个节点有子节点，那么聚焦到其最后一个子节点处
+        if (prevNodeChildren.length > 0) {
+          this.$store.commit(
+            'updateLastEditNode',
+            prevNodeChildren[prevNodeChildren.length - 1]
+          )
+        } else {
+          this.$store.commit('updateLastEditNode', previd)
+        }
+
+        return
+      }
+
+      if (parentid) {
+        this.$store.commit('updateLastEditNode', parentid)
+      }
+    },
+
+    handleFocusNextNode ({ evt, lastEditNode }) {
+      if (this._id !== lastEditNode) return
+
+      const nextid = this.nextid
+      const _id = this._id
+      const currentNodeChildren = this.$store.getters.getNode(_id).children
+
+      // 去过后一个节点有子节点，那么聚焦到其第一个子节点处
+      if (currentNodeChildren.length > 0) {
+        this.$store.commit('updateLastEditNode', currentNodeChildren[0])
+        return
+      }
+
+      if (nextid) {
+        this.$store.commit('updateLastEditNode', nextid)
+      }
+    },
+
+    // TODO: 节点更换位置后无法保持聚焦状态
+    handleMoveLineUp ({ evt, lastEditNode }) {
+      if (this._id !== lastEditNode || !this.previd) return
+
+      this.swapNodePosition(this._id, this.previd, this.parentid)
+    },
+
+    // TODO: 节点更换位置后无法保持聚焦状态
+    handleMoveLineDown ({ evt, lastEditNode }) {
+      if (this._id !== lastEditNode || !this.nextid) return
+
+      this.swapNodePosition(this._id, this.nextid, this.parentid)
+    },
+
     bindEvents () {
-      this.$root.$on('command:indentRight', this.handleKeydownTab)
-      this.$root.$on('command:indentLeft', this.handleKeydownShiftAndTab)
+      this.$root.$on('command:indentRight', this.handleIndentRight)
+      this.$root.$on('command:indentLeft', this.handleIndentLeft)
+      this.$root.$on('command:focusPrevNode', this.handleFocusPrevNode)
+      this.$root.$on('command:focusNextNode', this.handleFocusNextNode)
+      this.$root.$on('command:moveLineUp', this.handleMoveLineUp)
+      this.$root.$on('command:moveLineDown', this.handleMoveLineDown)
     }
   },
 
@@ -277,8 +355,8 @@ export default {
   },
 
   beforeDestroy () {
-    this.$root.$off('command:indentRight', this.handleKeydownTab)
-    this.$root.$off('command:indentLeft', this.handleKeydownShiftAndTab)
+    this.$root.$off('command:indentRight', this.handleIndentRight)
+    this.$root.$off('command:indentLeft', this.handleIndentLeft)
   }
 }
 </script>

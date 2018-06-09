@@ -4,6 +4,7 @@ import { getLastEditNode } from '@/modules/storage'
 
 function handleKeydownTab (evt) {
   evt.preventDefault()
+
   if (!evt.shiftKey && this.$store.state.status.textFieldFocus) {
     this.$root.$emit('command:indentRight', {
       evt,
@@ -14,6 +15,7 @@ function handleKeydownTab (evt) {
 
 function handleKeydownShiftAndTab (evt) {
   evt.preventDefault()
+
   if (this.$store.state.status.textFieldFocus) {
     this.$root.$emit('command:indentLeft', {
       evt,
@@ -30,8 +32,45 @@ function handleKeydownShiftAndEnter (evt) {
     })
     return
   }
+
   if (this.$store.state.status.noteFieldFocus) {
     this.$root.$emit('command:updateNodeNote', {
+      evt,
+      lastEditNode: getLastEditNode()
+    })
+  }
+}
+
+function handleKeydownUp (evt) {
+  if (!evt.altKey && this.$store.state.status.textFieldFocus) {
+    this.$root.$emit('command:focusPrevNode', {
+      evt,
+      lastEditNode: getLastEditNode()
+    })
+  }
+}
+
+function handleKeydownDown (evt) {
+  if (!evt.altKey && this.$store.state.status.textFieldFocus) {
+    this.$root.$emit('command:focusNextNode', {
+      evt,
+      lastEditNode: getLastEditNode()
+    })
+  }
+}
+
+function handleKeydownAltAndUp (evt) {
+  if (evt.altKey && this.$store.state.status.textFieldFocus) {
+    this.$root.$emit('command:moveLineUp', {
+      evt,
+      lastEditNode: getLastEditNode()
+    })
+  }
+}
+
+function handleKeydownAltAndDown (evt) {
+  if (evt.altKey && this.$store.state.status.textFieldFocus) {
+    this.$root.$emit('command:moveLineDown', {
       evt,
       lastEditNode: getLastEditNode()
     })
@@ -62,6 +101,36 @@ export default {
         keys: 'shift enter',
         is_exclusive: false,
         on_keydown: handleKeydownShiftAndEnter.bind(context)
+      },
+      {
+        keys: 'up',
+        is_exclusive: false,
+        on_keydown: handleKeydownUp.bind(context)
+      },
+      {
+        keys: 'down',
+        is_exclusive: false,
+        on_keydown: handleKeydownDown.bind(context)
+      },
+      {
+        keys: 'alt up',
+        is_exclusive: false,
+        on_keydown: handleKeydownAltAndUp.bind(context)
+      },
+      {
+        keys: 'alt down',
+        is_exclusive: false,
+        on_keydown: handleKeydownAltAndDown.bind(context)
+      },
+      {
+        keys: 'shift alt up', // 向上选择节点
+        is_exclusive: false
+        // on_keydown: handleKeydownAltAndDown.bind(context)
+      },
+      {
+        keys: 'shift alt down', // 向下选择节点
+        is_exclusive: false
+        // on_keydown: handleKeydownAltAndDown.bind(context)
       }
     ])
   },

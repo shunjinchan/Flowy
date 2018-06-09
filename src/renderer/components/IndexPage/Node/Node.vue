@@ -1,9 +1,10 @@
 <template>
   <section class="node" :data-id="nodeData._id" ref="node">
     <node-text :nodeData="nodeData"
-               :parentid="parentid"
-               :previd="previd"
                :index="index"
+               :previd="previd"
+               :nextid="nextid"
+               :parentid="parentid"
                :grandparentid="grandparentid"
                :isFocusTextField="isFocusTextField"
                :isCollapsed="isCollapsed"
@@ -89,6 +90,18 @@ export default {
       return previd
     },
 
+    nextid () {
+      let nextid = ''
+      if (
+        this.parentid &&
+        this.nodeData._id &&
+        this.currentIndex < this.parentChildren.length - 1
+      ) {
+        nextid = this.parentChildren[this.currentIndex + 1]
+      }
+      return nextid
+    },
+
     hasChildren () {
       return this.children && this.children.length > 0
     },
@@ -118,6 +131,7 @@ export default {
 
   methods: {
     async updateNode (nodeData) {
+      this.$store.commit('updateNode', nodeData)
       const affectedDocuments = await this.$store.dispatch(
         'updateNode', nodeData
       )
@@ -126,7 +140,7 @@ export default {
 
     async lazyUpdateNode (nodeData) {
       const affectedDocuments = await this.$store.dispatch(
-        'lazyUpdateNode', nodeData
+        'updateNode', nodeData
       )
       return affectedDocuments
     },

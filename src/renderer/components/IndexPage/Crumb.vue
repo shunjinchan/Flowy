@@ -17,6 +17,7 @@
 <script>
 export default {
   name: 'crumb',
+
   props: {
     crumbList: {
       type: Array,
@@ -25,6 +26,7 @@ export default {
       }
     }
   },
+
   methods: {
     handleClick (_id) {
       this.$router.push({ path: _id })

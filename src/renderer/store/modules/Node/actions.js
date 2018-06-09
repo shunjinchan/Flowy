@@ -51,24 +51,7 @@ export default {
       nodeData,
       { returnUpdatedDocs: true }
     )
-    if (affectedDocuments && !_.isEmpty(affectedDocuments)) {
-      commit('updateNode', affectedDocuments)
-    }
-    return affectedDocuments
-  },
 
-  /**
-   * 懒更新节点数据，非响应式
-   * @param commit
-   * @param nodeData
-   * @returns {Promise<object>}
-   */
-  async lazyUpdateNode ({ commit }, nodeData) {
-    const { affectedDocuments } = await updateAsync(
-      { _id: nodeData._id },
-      nodeData,
-      { returnUpdatedDocs: true }
-    )
     return affectedDocuments
   },
 

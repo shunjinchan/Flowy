@@ -61,11 +61,11 @@ export default {
       this.isFocus = false
     },
 
-    addNodeNote ({evt, lastEditNode}) {
+    addNodeNote ({ evt, lastEditNode }) {
       if (this._id === lastEditNode) this.isFocus = true
     },
 
-    async updateNodeNote ({evt, lastEditNode}) {
+    async updateNodeNote ({ evt, lastEditNode }) {
       if (this._id !== lastEditNode) return
 
       const data = _.merge({}, this.nodeData, {

@@ -13,15 +13,18 @@ import { getLastRouter, setLastRouter } from '@/modules/storage'
 
 export default {
   name: 'index-page',
+
   components: {
     Board,
     CommandContainer
   },
+
   mounted () {
     const lastRouter = 'root'
     this.$router.push({path: lastRouter})
     setLastRouter(lastRouter)
   },
+
   watch: {
     '$route' (to, from) {
       // setLastRouter(to.params.id)
