@@ -23,6 +23,7 @@
 
 <script>
 import _ from 'lodash'
+import uuidv4 from 'uuid/v4'
 import TextField from './TextField'
 import ExpandButton from './ExpandButton'
 import BulletButton from './BulletButton'
@@ -110,14 +111,43 @@ export default {
   },
 
   methods: {
-    async addNode (param) {
-      const newNodeData = await this.$store.dispatch('addNode', param)
-      return newNodeData
+    // bullet-button
+    handleBulletClick () {
+      this.$router.push({ path: this._id })
+      this.$store.dispatch('updateCrumb', this._id)
     },
 
-    async deleteNode (param) {
-      const numRemoved = await this.$store.dispatch('deleteNode', param)
-      return numRemoved
+    // text-field
+    addNodeToTargetNode (_id, targetid, previd) {
+      const targetNode = _.cloneDeep(this.$store.state.node[targetid])
+
+      // 有前一个相邻节点
+      if (previd) {
+        let index = targetNode.children.indexOf(previd)
+        targetNode.children.splice(index + 1, 0, _id)
+      } else {
+        targetNode.children.push(_id)
+      }
+
+      this.$store.commit('updateNode', targetNode)
+      this.updateNode(targetNode)
+    },
+
+    addNode (previd) {
+      const _id = uuidv4()
+      const newNode = {
+        attributes: { text: '', note: '' },
+        children: [],
+        parentid: previd,
+        _id: _id
+      }
+      this.$store.commit('addNode', newNode)
+      this.$store.dispatch('addNode', newNode)
+      return newNode
+    },
+
+    deleteNode (_id) {
+      this.$store.dispatch('deleteNode', _id)
     },
 
     deleteNodeFromSourceNode (_id, sourceid) {
@@ -141,20 +171,6 @@ export default {
 
       this.$store.commit('updateNode', targetNode)
       this.updateNode(targetNode)
-    },
-
-    // bullet-button
-    handleBulletClick () {
-      this.$router.push({ path: this._id })
-      this.$store.dispatch('updateCrumb', this._id)
-    },
-
-    // text-field
-    deleteCurrentNode () {
-      const parentid = this.parentid
-      const _id = this._id
-      const param = { parentid: parentid, _id: _id }
-      this.deleteNode(param)
     },
 
     updateNodeText (text) {
@@ -206,15 +222,15 @@ export default {
       this.lazyUpdateNode(this.updateNodeText(text))
     },
 
-    async handleKeydownEnter (evt) {
+    handleKeydownEnter (evt) {
       const parentid = this.parentid
       const _id = this._id
       const text = evt.target.textContent
 
       evt.preventDefault()
-      await this.updateNode(this.updateNodeText(text))
       if (text !== '') {
-        const newNode = await this.addNode({ parentid: parentid, previd: _id })
+        const newNode = this.addNode(_id)
+        this.addNodeToTargetNode(newNode._id, parentid, _id)
         this.$store.commit('updateLastEditNode', newNode._id)
       }
     },
@@ -227,8 +243,10 @@ export default {
         evt.preventDefault()
         //  最后一个根节点的子节点不需要删除
         if (this.parentid === 'root' && this.index === 0) return
-        this.deleteCurrentNode()
-        previd && this.$store.commit('updateLastEditNode', previd)
+        this.deleteNodeFromSourceNode(this._id, this.parentid)
+        if (previd) {
+          this.$store.commit('updateLastEditNode', previd)
+        }
       }
     },
 

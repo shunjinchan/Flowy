@@ -145,21 +145,7 @@ export default {
       this.updateNode(data)
     },
 
-    updateHeight (height) {
-      this.$refs.node.setAttribute(
-        'style',
-        `min-height: ${height}px`
-      )
-    },
-
     bindEvents () {}
-  },
-
-  mounted () {
-    this.$nextTick(() => {
-      const height = this.$refs.node.clientHeight
-      this.updateHeight(height)
-    })
   },
 
   beforeDestroy () {

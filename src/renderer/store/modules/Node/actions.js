@@ -1,4 +1,5 @@
 import _ from 'lodash'
+import uuidv4 from 'uuid/v4'
 import {
   getAllNode,
   getNode,
@@ -24,62 +25,17 @@ export default {
   /**
    * 插入空的新节点，同时更新应用 state
    * @param commit
-   * @param data
+   * @param nodeData
    * @returns {Promise<object>}
    */
-  async insertNode ({ commit }, { parentid = '' }) {
-    const newNode = await insertAsync({
-      attributes: { text: '', note: '' },
-      children: [],
-      parentid: parentid
-    })
-    commit('insertNode', newNode)
-
+  async addNode ({ commit }, nodeData) {
+    const newNode = await insertAsync(nodeData)
+    commit('addNode', newNode)
     return newNode
   },
 
-  /**
-   * 添加节点，同样会在其父节点的 node 属性中增加该新节点的 id
-   * @param commit
-   * @param parentid 父节点 id
-   * @param previd 上一个节点 id，根据这个节点 id 选择插入位置
-   * @returns {Promise<object>}
-   */
-  async addNode ({ commit, dispatch }, { parentid, previd }) {
-    let parentNode = await dispatch('getNode', { _id: parentid })
-    let newNode
-
-    if (parentNode && !_.isEmpty(parentNode)) {
-      newNode = await dispatch('insertNode', { parentid })
-
-      // 更新父节点
-      if (newNode && !_.isEmpty(newNode)) {
-        // 有前一个相邻节点
-        if (previd) {
-          let index = parentNode.children.indexOf(previd)
-          parentNode.children.splice(index + 1, 0, newNode._id)
-        } else {
-          parentNode.children.push(newNode._id)
-        }
-
-        parentNode = await dispatch('updateNode', parentNode)
-      }
-    }
-
-    return newNode
-  },
-
-  async deleteNode ({ commit, dispatch }, { parentid, _id }) {
+  async deleteNode ({ commit, dispatch }, { _id }) {
     const numRemoved = await deleteNode({ _id: _id })
-    const parentNode = await dispatch('getNode', { _id: parentid })
-
-    // 更新父节点
-    if (parentNode && !_.isEmpty(parentNode)) {
-      const index = parentNode.children.indexOf(_id)
-      parentNode.children.splice(index, 1)
-      await dispatch('updateNode', parentNode)
-    }
-
     return numRemoved
   },
 
@@ -116,45 +72,21 @@ export default {
     return affectedDocuments
   },
 
-  // async deleteNodeChildren ({ commit, dispatch }, { _id, targetid }) {
-  //   let targetNode = await getNode({ _id: targetid })
-  //   // 更新父节点
-  //   if (targetNode && !_.isEmpty(targetNode)) {
-  //     const index = targetNode.children.indexOf(_id)
-  //     targetNode.children.splice(index, 1)
-  //     targetNode = await dispatch('updateNode', targetNode)
-  //   }
-  //   return targetNode
-  // },
-
-  // async addNodeChildren ({ commit, dispatch }, { _id, targetid, previd }) {
-  //   let targetNode = await getNode({ _id: targetid })
-  //   // 更新目标节点
-  //   if (targetNode && !_.isEmpty(targetNode)) {
-  //     if (previd) {
-  //       let index = targetNode.children.indexOf(previd)
-  //       targetNode.children.splice(index + 1, 0, _id)
-  //       targetNode = await dispatch('updateNode', targetNode)
-  //     } else {
-  //       targetNode.children.push(_id)
-  //       targetNode = await dispatch('updateNode', targetNode)
-  //     }
-  //   }
-  //   return targetNode
-  // },
-
   async getRootNode ({ commit, dispatch, state }, { _id }) {
     let rootNode = await getNode({ _id: 'root' })
 
-    if (!rootNode || _.isEmpty(rootNode)) {
-      rootNode = await insertAsync({
+    let addRootNode = async () => {
+      rootNode = {
         attributes: { text: 'Home', note: '' },
         children: [],
         parentid: '',
         _id: 'root'
-      })
-      commit('insertNode', rootNode)
-    } else {
+      }
+      commit('addNode', rootNode)
+      await dispatch('addNode', rootNode)
+    }
+
+    let getAllNode = async () => {
       let nodeList = await dispatch('getAllNode')
       nodeList.forEach(node => {
         if (node._id === _id) rootNode = node
@@ -162,12 +94,35 @@ export default {
       commit('setAllNode', nodeList)
     }
 
+    let addRootChild = async () => {
+      const _id = uuidv4()
+      const newNode = {
+        attributes: { text: '', note: '' },
+        children: [],
+        parentid: rootNode._id,
+        _id: _id
+      }
+      const newRootNode = _.cloneDeep(rootNode)
+
+      newRootNode.children.push(_id)
+      commit('addNode', newNode)
+      commit('updateNode', newRootNode)
+      await dispatch('addNode', newNode)
+      await dispatch('updateNode', newRootNode)
+    }
+
+    if (!rootNode || _.isEmpty(rootNode)) {
+      addRootNode()
+    } else {
+      getAllNode()
+    }
+
     // 如果 rootNode 为空，重定向到首页
     if (_.isEmpty(rootNode)) {
       location.href = '/'
     } else {
       if (!rootNode.children || rootNode.children.length === 0) {
-        await dispatch('addNode', { parentid: rootNode._id })
+        addRootChild()
       }
     }
 
@@ -181,9 +136,7 @@ export default {
    */
   async emptyAllNode ({ commit, dispatch }) {
     const numRemoved = await deleteAllNode()
-    // commit('emptyAllNode')
-    // await dispatch('initRootNode')
-    // await dispatch('addNode', { parentid: 'root' })
+    commit('emptyAllNode')
     return numRemoved
   }
 }

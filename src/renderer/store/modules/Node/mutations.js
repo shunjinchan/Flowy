@@ -14,7 +14,7 @@ export default {
     })
   },
 
-  insertNode (state, data) {
+  addNode (state, data) {
     Vue.set(state, data._id, data)
   },
 
@@ -26,18 +26,6 @@ export default {
   updateNode (state, data) {
     state[data._id] = data
   },
-
-  // // 子节点也要移动
-  // moveNode (state, data) {},
-  //
-  // // 子节点也要删除
-  // deleteNode (sate, data) {},
-  //
-  // // 子节点也要更新
-  // completeNode (state, data) {},
-  //
-  // // 子节点也要复制
-  // duplicateNode (state, data) {},
 
   /**
    * 清空所有节点数据
