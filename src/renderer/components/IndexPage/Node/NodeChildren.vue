@@ -35,13 +35,15 @@
       const grandparentid = this.parentid
       const ele = this.children.map((nodeid, index) => {
         const childNodeData = this.$store.getters.getNode(nodeid) || {}
+        // Node 节点为什么不加 key={childNodeData._id}
+        // 增加了 key 之后会复用节点，会导致组件的聚焦状态错误
+        // 详见 https://cn.vuejs.org/v2/guide/list.html#key
         return (
           <Node
             nodeData={childNodeData}
             index={index}
             parentid={parentid}
             grandparentid={grandparentid}
-            key={childNodeData._id}
           />
         )
       })

@@ -34,9 +34,15 @@ export default {
     return newNode
   },
 
-  async deleteNode ({ commit, dispatch }, { _id }) {
-    const numRemoved = await deleteNode({ _id: _id })
-    return numRemoved
+  async deleteNode ({ commit, dispatch }, _ids) {
+    if (typeof _ids === 'string') {
+      const numRemoved = await deleteNode({ _id: _ids })
+      return numRemoved
+    }
+
+    if (Array.isArray(_ids)) {
+      _ids.forEach(_id => {})
+    }
   },
 
   /**
@@ -58,17 +64,6 @@ export default {
   async getRootNode ({ commit, dispatch, state }, { _id }) {
     let rootNode = await getNode({ _id: 'root' })
 
-    let addRootNode = async () => {
-      rootNode = {
-        attributes: { text: 'Home', note: '' },
-        children: [],
-        parentid: '',
-        _id: 'root'
-      }
-      commit('addNode', rootNode)
-      await dispatch('addNode', rootNode)
-    }
-
     let getAllNode = async () => {
       let nodeList = await dispatch('getAllNode')
       nodeList.forEach(node => {
@@ -80,7 +75,7 @@ export default {
     let addRootChild = async () => {
       const _id = uuidv4()
       const newNode = {
-        attributes: { text: '', note: '' },
+        attributes: { text: '', note: '', isExpanded: true },
         children: [],
         parentid: rootNode._id,
         _id: _id
@@ -94,6 +89,18 @@ export default {
       await dispatch('updateNode', newRootNode)
     }
 
+    let addRootNode = async () => {
+      rootNode = {
+        attributes: { text: 'Home', note: '', isExpanded: true },
+        children: [],
+        parentid: '',
+        _id: 'root'
+      }
+      commit('addNode', rootNode)
+      await dispatch('addNode', rootNode)
+      addRootChild()
+    }
+
     if (!rootNode || _.isEmpty(rootNode)) {
       addRootNode()
     } else {
@@ -103,10 +110,6 @@ export default {
     // 如果 rootNode 为空，重定向到首页
     if (_.isEmpty(rootNode)) {
       location.href = '/'
-    } else {
-      if (!rootNode.children || rootNode.children.length === 0) {
-        addRootChild()
-      }
     }
 
     return rootNode

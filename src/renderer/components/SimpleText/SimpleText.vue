@@ -167,6 +167,10 @@ export default {
   mounted () {
     this.observe()
     this.isFocus && this.focus()
+  },
+
+  updated () {
+    this.isFocus && this.focus()
   }
 }
 </script>

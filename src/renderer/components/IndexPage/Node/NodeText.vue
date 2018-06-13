@@ -16,7 +16,6 @@
                 :handleInput="handleTextInput" />
     <!-- <div>
       <span>id: {{ _id }}</span>
-      <span>nextid: {{ nextid }}</span>
     </div> -->
   </div>
 </template>
@@ -92,6 +91,13 @@ export default {
         return () => {}
       },
       require: false
+    },
+    deleteNode: {
+      type: Function,
+      default () {
+        return () => {}
+      },
+      require: false
     }
   },
 
@@ -135,12 +141,12 @@ export default {
       this.updateNode(targetNode)
     },
 
-    addNode (previd) {
+    addNode (parentid) {
       const _id = uuidv4()
       const newNode = {
-        attributes: { text: '', note: '' },
+        attributes: { text: '', note: '', isExpanded: true },
         children: [],
-        parentid: previd,
+        parentid: parentid,
         _id: _id
       }
 
@@ -148,10 +154,6 @@ export default {
       this.$store.dispatch('addNode', newNode)
 
       return newNode
-    },
-
-    deleteNode (_id) {
-      this.$store.dispatch('deleteNode', _id)
     },
 
     deleteNodeFromSourceNode (_id, sourceid) {
@@ -209,7 +211,7 @@ export default {
       }))
     },
 
-    swapNodePosition (sourceid, targetid, parentid) {
+    async swapNodePosition (sourceid, targetid, parentid) {
       const parentNode = _.cloneDeep(this.$store.state.node[parentid])
       const sourceIndex = parentNode.children.indexOf(sourceid)
       const targetIndex = parentNode.children.indexOf(targetid)
@@ -217,7 +219,6 @@ export default {
       parentNode.children[targetIndex] = sourceid
       parentNode.children[sourceIndex] = targetid
       this.updateNode(parentNode)
-      // this.$store.commit('updateLastEditNode', this.sourceid)
     },
 
     handleTextClick (evt) {},
@@ -228,7 +229,8 @@ export default {
     },
 
     handleTextBlur (evt) {
-      this.updateNode(this.updateNodeText(evt.target.textContent))
+      // onblur 时不要更新节点数据，原因：组件销毁（如缩进操作）会更新一次节点数据，
+      // 同时也会触发 onblur 事件，但是缩进过后其父节点已经被改变，而 onblur 事件处理函数无法得知该情况
       this.$store.commit('updateTextFieldFocusStatus', false)
     },
 
@@ -242,22 +244,28 @@ export default {
       const text = evt.target.textContent
 
       evt.preventDefault()
+      this.updateNode(this.updateNodeText(text))
       if (text !== '') {
-        const newNode = this.addNode(_id)
+        const newNode = this.addNode(parentid)
         this.addNodeToTargetNode(newNode._id, parentid, _id)
         this.$store.commit('updateLastEditNode', newNode._id)
       }
     },
 
+    // TODO: 将当前节点从 state 与数据库中删除
     handleKeydownDelete (evt) {
       const previd = this.previd
       const text = evt.target.textContent
+      const parentid = this.parentid
+      const _id = this._id
 
       if (text === '') {
-        evt.preventDefault()
         //  最后一个根节点的子节点不需要删除
-        if (this.parentid === 'root' && this.index === 0) return
-        this.deleteNodeFromSourceNode(this._id, this.parentid)
+        if (parentid === 'root' && this.index === 0) return
+
+        evt.preventDefault()
+        this.deleteNodeFromSourceNode(_id, parentid)
+        this.deleteNode(this.nodeData._id)
         if (previd) {
           this.$store.commit('updateLastEditNode', previd)
         }
@@ -280,26 +288,28 @@ export default {
       debugger
     },
 
-    // TODO: 跨层级聚焦
     handleFocusPrevNode ({ evt, lastEditNode }) {
       if (this._id !== lastEditNode) return
 
       const previd = this.previd
       const parentid = this.parentid
 
-      if (previd) {
-        const prevNodeChildren = this.$store.getters.getNode(previd).children
-
-        // 去过前一个节点有子节点，那么聚焦到其最后一个子节点处
-        if (prevNodeChildren.length > 0) {
-          this.$store.commit(
-            'updateLastEditNode',
-            prevNodeChildren[prevNodeChildren.length - 1]
-          )
-        } else {
-          this.$store.commit('updateLastEditNode', previd)
+      const findPrevNode = (_id) => {
+        const node = this.$store.getters.getNode(_id)
+        const nodeChildren = node.children
+        // 折叠的节点不需要检查其子节点
+        if (node.attributes.isExpanded === false) {
+          return _id
         }
+        // 如果前一个节点有子节点，找到其最后的子节点
+        if (nodeChildren.length > 0) {
+          return findPrevNode(nodeChildren[nodeChildren.length - 1])
+        }
+        return _id
+      }
 
+      if (previd) {
+        this.$store.commit('updateLastEditNode', findPrevNode(previd))
         return
       }
 
@@ -313,20 +323,58 @@ export default {
 
       const nextid = this.nextid
       const _id = this._id
-      const currentNodeChildren = this.$store.getters.getNode(_id).children
 
-      // 去过后一个节点有子节点，那么聚焦到其第一个子节点处
-      if (currentNodeChildren.length > 0) {
-        this.$store.commit('updateLastEditNode', currentNodeChildren[0])
+      const findTheFirstChildNode = (_id) => {
+        const node = this.$store.getters.getNode(_id)
+        const nodeChildren = node.children
+        // 节点没折叠且有子节点
+        if (
+          node.attributes.isExpanded !== false &&
+          nodeChildren &&
+          nodeChildren.length > 0
+        ) {
+          return nodeChildren[0]
+        }
+        return null
+      }
+
+      const findParentNextNode = (_id) => {
+        const node = this.$store.getters.getNode(_id)
+        const parentid = node.parentid
+
+        // 如果没有父节点，直接定位到当前 id，有且仅有 root 节点没有父节点
+        if (!parentid) return _id
+
+        const parentNode = this.$store.getters.getNode(parentid)
+        const index = parentNode.children.indexOf(_id)
+
+        // 该节点为当前层级节点的最后一个节点，递归往上查找
+        if (index >= parentNode.children.length - 1) {
+          return findParentNextNode(parentid)
+        } else {
+          return parentNode.children[index + 1]
+        }
+      }
+
+      // 如果有子节点且子节点是展开状态
+      if (findTheFirstChildNode(_id)) {
+        this.$store.commit('updateLastEditNode', findTheFirstChildNode(_id))
         return
       }
 
+      // 如果有下一个节点
       if (nextid) {
         this.$store.commit('updateLastEditNode', nextid)
+        return
       }
+
+      // 该节点的上一层级节点的下一个节点
+      this.$store.commit(
+        'updateLastEditNode',
+        findParentNextNode(_id)
+      )
     },
 
-    // TODO: 节点更换位置后无法保持聚焦状态
     handleMoveLineUp ({ evt, lastEditNode }) {
       if (this._id !== lastEditNode || !this.previd) return
 
@@ -341,10 +389,13 @@ export default {
     },
 
     bindEvents () {
+      // 缩进
       this.$root.$on('command:indentRight', this.handleIndentRight)
       this.$root.$on('command:indentLeft', this.handleIndentLeft)
+      // 上下切换节点聚焦状态
       this.$root.$on('command:focusPrevNode', this.handleFocusPrevNode)
       this.$root.$on('command:focusNextNode', this.handleFocusNextNode)
+      // 更换节点位置只支持同级节点，不能跨级更换
       this.$root.$on('command:moveLineUp', this.handleMoveLineUp)
       this.$root.$on('command:moveLineDown', this.handleMoveLineDown)
     }
@@ -357,6 +408,10 @@ export default {
   beforeDestroy () {
     this.$root.$off('command:indentRight', this.handleIndentRight)
     this.$root.$off('command:indentLeft', this.handleIndentLeft)
+    this.$root.$off('command:focusPrevNode', this.handleFocusPrevNode)
+    this.$root.$off('command:focusNextNode', this.handleFocusNextNode)
+    this.$root.$off('command:moveLineUp', this.handleMoveLineUp)
+    this.$root.$off('command:moveLineDown', this.handleMoveLineDown)
   }
 }
 </script>

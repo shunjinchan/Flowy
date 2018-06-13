@@ -27,6 +27,19 @@ export default {
     state[data._id] = data
   },
 
+  deleteNode (state, _ids) {
+    if (typeof _ids === 'string') {
+      delete state[_ids]
+      return
+    }
+
+    if (Array.isArray(_ids)) {
+      _ids.forEach(_id => {
+        delete state[_id]
+      })
+    }
+  },
+
   /**
    * 清空所有节点数据
    * @param state

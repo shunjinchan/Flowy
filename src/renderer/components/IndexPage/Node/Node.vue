@@ -13,6 +13,7 @@
                :collapseChildren="collapseChildren"
                :expandChildren="expandChildren"
                :lazyUpdateNode="lazyUpdateNode" 
+               :deleteNode="deleteNode" 
                :updateNode="updateNode" />
 
     <node-note :nodeData="nodeData"
@@ -136,6 +137,14 @@ export default {
         'updateNode', nodeData
       )
       return affectedDocuments
+    },
+
+    async deleteNode (_id) {
+      this.$store.commit('deleteNode', _id)
+      const numRemoved = await this.$store.dispatch(
+        'deleteNode', _id
+      )
+      return numRemoved
     },
 
     async lazyUpdateNode (nodeData) {
