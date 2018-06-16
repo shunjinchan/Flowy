@@ -5,12 +5,12 @@
 </template>
 
 <script>
-import shortcut from './modules/shortcut'
+import globalShortcut from './modules/globalShortcut'
 
 export default {
   name: 'flowy',
   mounted () {
-    shortcut.register(this)
+    globalShortcut.register(this)
   }
 }
 </script>

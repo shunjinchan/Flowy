@@ -14,9 +14,9 @@
                 :handleKeydownEnter="handleKeydownEnter"
                 :handleKeydownDelete="handleKeydownDelete"
                 :handleInput="handleTextInput" />
-    <!-- <div>
+    <div>
       <span>id: {{ _id }}</span>
-    </div> -->
+    </div>
   </div>
 </template>
 
@@ -77,6 +77,13 @@ export default {
     },
     expandChildren: {
       type: Function
+    },
+    updateNodeText: {
+      type: Function,
+      default () {
+        return () => {}
+      },
+      require: false
     },
     lazyUpdateNode: {
       type: Function,
@@ -177,14 +184,6 @@ export default {
       this.updateNode(targetNode)
     },
 
-    updateNodeText (text) {
-      const data = _.merge({}, this.nodeData, {
-        attributes: { text: text }
-      })
-
-      return data
-    },
-
     indentRight (text) {
       const previd = this.previd
       const _id = this._id
@@ -211,16 +210,6 @@ export default {
       }))
     },
 
-    async swapNodePosition (sourceid, targetid, parentid) {
-      const parentNode = _.cloneDeep(this.$store.state.node[parentid])
-      const sourceIndex = parentNode.children.indexOf(sourceid)
-      const targetIndex = parentNode.children.indexOf(targetid)
-
-      parentNode.children[targetIndex] = sourceid
-      parentNode.children[sourceIndex] = targetid
-      this.updateNode(parentNode)
-    },
-
     handleTextClick (evt) {},
 
     handleTextFocus (evt) {
@@ -241,7 +230,7 @@ export default {
     handleKeydownEnter (evt) {
       const parentid = this.parentid
       const _id = this._id
-      const text = evt.target.textContent
+      const text = evt.target.innerHTML
 
       evt.preventDefault()
       this.updateNode(this.updateNodeText(text))
@@ -252,10 +241,9 @@ export default {
       }
     },
 
-    // TODO: 将当前节点从 state 与数据库中删除
     handleKeydownDelete (evt) {
       const previd = this.previd
-      const text = evt.target.textContent
+      const text = evt.target.innerHTML
       const parentid = this.parentid
       const _id = this._id
 
@@ -275,13 +263,13 @@ export default {
     handleIndentRight ({evt, lastEditNode}) {
       // 第一个子节点不需要右缩进
       if (this.index < 1) return
-      if (this._id === lastEditNode) this.indentRight(evt.target.textContent)
+      if (this._id === lastEditNode) this.indentRight(evt.target.innerHTML)
     },
 
     handleIndentLeft ({evt, lastEditNode}) {
       // 父节点是根节点，不需要左缩进
       if (this.parentid === 'root') return
-      if (this._id === lastEditNode) this.indentLeft(evt.target.textContent)
+      if (this._id === lastEditNode) this.indentLeft(evt.target.innerHTML)
     },
 
     handleKeydownShiftAndEnter (evt) {
@@ -375,19 +363,6 @@ export default {
       )
     },
 
-    handleMoveLineUp ({ evt, lastEditNode }) {
-      if (this._id !== lastEditNode || !this.previd) return
-
-      this.swapNodePosition(this._id, this.previd, this.parentid)
-    },
-
-    // TODO: 节点更换位置后无法保持聚焦状态
-    handleMoveLineDown ({ evt, lastEditNode }) {
-      if (this._id !== lastEditNode || !this.nextid) return
-
-      this.swapNodePosition(this._id, this.nextid, this.parentid)
-    },
-
     bindEvents () {
       // 缩进
       this.$root.$on('command:indentRight', this.handleIndentRight)
@@ -395,9 +370,6 @@ export default {
       // 上下切换节点聚焦状态
       this.$root.$on('command:focusPrevNode', this.handleFocusPrevNode)
       this.$root.$on('command:focusNextNode', this.handleFocusNextNode)
-      // 更换节点位置只支持同级节点，不能跨级更换
-      this.$root.$on('command:moveLineUp', this.handleMoveLineUp)
-      this.$root.$on('command:moveLineDown', this.handleMoveLineDown)
     }
   },
 
@@ -410,20 +382,24 @@ export default {
     this.$root.$off('command:indentLeft', this.handleIndentLeft)
     this.$root.$off('command:focusPrevNode', this.handleFocusPrevNode)
     this.$root.$off('command:focusNextNode', this.handleFocusNextNode)
-    this.$root.$off('command:moveLineUp', this.handleMoveLineUp)
-    this.$root.$off('command:moveLineDown', this.handleMoveLineDown)
   }
 }
 </script>
 
-<style lang="scss" scoped>
+<style lang="scss">
 .node-text {
   display: flex;
   line-height: 20px;
-  padding-top: 4px;
+  padding-top: 3px;
   position: relative;
   .simple-text {
     flex-grow: 1;
+    blockquote {
+      margin: 0;
+      color: #777;
+      border-left: 3px solid #DCDCDC;
+      padding-left: 10px;
+    }
   }
   .collapse-button, .expand-button {
     position: absolute;

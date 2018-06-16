@@ -3,7 +3,14 @@ import SimpleText from '../../SimpleText/SimpleText'
 
 export default {
   name: 'text-field',
-  mixins: [SimpleText]
+
+  mixins: [SimpleText],
+
+  methods: {
+    handleKeydownShiftAndMetaAndB (evt) {
+      evt.preventDefault()
+    }
+  }
 }
 </script>
 

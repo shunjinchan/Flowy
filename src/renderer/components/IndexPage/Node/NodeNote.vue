@@ -69,7 +69,7 @@ export default {
       if (this._id !== lastEditNode) return
 
       const data = _.merge({}, this.nodeData, {
-        attributes: { note: evt.target.textContent }
+        attributes: { note: evt.target.innerHTML }
       })
       await this.updateNode(data)
     },

@@ -1,5 +1,8 @@
 <template>
-  <section class="node" :data-id="nodeData._id" ref="node">
+  <section class="node" 
+           :class="{ focus: isFocus }" 
+           :data-id="nodeData._id" 
+           ref="node">
     <node-text :nodeData="nodeData"
                :index="index"
                :previd="previd"
@@ -13,6 +16,7 @@
                :collapseChildren="collapseChildren"
                :expandChildren="expandChildren"
                :lazyUpdateNode="lazyUpdateNode" 
+               :updateNodeText="updateNodeText" 
                :deleteNode="deleteNode" 
                :updateNode="updateNode" />
 
@@ -34,6 +38,12 @@ import NodeChildren from './NodeChildren'
 
 export default {
   name: 'node',
+
+  data () {
+    return {
+      isFocus: false
+    }
+  },
 
   props: {
     nodeData: {
@@ -77,6 +87,10 @@ export default {
 
     currentIndex () {
       return this.parentChildren.indexOf(this.nodeData._id)
+    },
+
+    _id () {
+      return this.nodeData._id
     },
 
     previd () {
@@ -139,6 +153,13 @@ export default {
       return affectedDocuments
     },
 
+    async lazyUpdateNode (nodeData) {
+      const affectedDocuments = await this.$store.dispatch(
+        'updateNode', nodeData
+      )
+      return affectedDocuments
+    },
+
     async deleteNode (_id) {
       this.$store.commit('deleteNode', _id)
       const numRemoved = await this.$store.dispatch(
@@ -147,11 +168,12 @@ export default {
       return numRemoved
     },
 
-    async lazyUpdateNode (nodeData) {
-      const affectedDocuments = await this.$store.dispatch(
-        'updateNode', nodeData
-      )
-      return affectedDocuments
+    updateNodeText (text) {
+      const data = _.merge({}, this.nodeData, {
+        attributes: { text: text }
+      })
+
+      return data
     },
 
     collapseChildren () {
@@ -168,23 +190,87 @@ export default {
       this.updateNode(data)
     },
 
-    bindEvents () {}
+    // move line
+    swapNodePosition (sourceid, targetid, parentid) {
+      const parentNode = _.cloneDeep(this.$store.state.node[parentid])
+      const sourceIndex = parentNode.children.indexOf(sourceid)
+      const targetIndex = parentNode.children.indexOf(targetid)
+
+      parentNode.children[targetIndex] = sourceid
+      parentNode.children[sourceIndex] = targetid
+      this.updateNode(parentNode)
+    },
+
+    handleMoveLineUp ({ evt, lastEditNode }) {
+      if (this._id !== lastEditNode || !this.previd) return
+
+      this.updateNode(this.updateNodeText(evt.target.innerHTML))
+      this.swapNodePosition(this._id, this.previd, this.parentid)
+    },
+
+    handleMoveLineDown ({ evt, lastEditNode }) {
+      if (this._id !== lastEditNode || !this.nextid) return
+
+      this.updateNode(this.updateNodeText(evt.target.innerHTML))
+      this.swapNodePosition(this._id, this.nextid, this.parentid)
+    },
+
+    bindEvents () {
+      // 更换节点位置只支持同级节点，不能跨级更换
+      this.$root.$on('command:moveLineUp', this.handleMoveLineUp)
+      this.$root.$on('command:moveLineDown', this.handleMoveLineDown)
+    },
+
+    updateFocusStatus () {
+      if (this._id === this.lastEditNode) {
+        this.isFocus = true
+      } else {
+        this.isFocus = false
+      }
+    }
+  },
+
+  mounted () {
+    this.bindEvents()
+    this.updateFocusStatus()
+  },
+
+  updated () {
+    this.updateFocusStatus()
   },
 
   beforeDestroy () {
-    console.log('before destory')
+    this.$root.$off('command:moveLineUp', this.handleMoveLineUp)
+    this.$root.$off('command:moveLineDown', this.handleMoveLineDown)
   }
 }
 </script>
 
 <style lang="scss" scoped>
 .node {
+  position: relative;
   > .node-children {
     padding-left: 18px;
   }
   &.open {
     .node-children {
         display: none;
+    }
+  }
+  &.focus {
+    > .node-text {
+      &::before {
+        content: '';
+        background-color: #eee;
+        height: 100%;
+        left: -5px;
+        padding: 2px 5px 1px;
+        position: absolute;
+        top: 0;
+        width: 100%;
+        border-radius: 5px;
+        z-index: -1;
+      }
     }
   }
 }
