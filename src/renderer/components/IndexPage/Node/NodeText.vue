@@ -8,9 +8,8 @@
                    :handleClick="handleBulletClick" />
     <text-field :text="text"
                 :isFocus="isFocusTextField"
-                :handleClick="handleTextClick"
-                :handleFocus="handleTextFocus"
                 :handleBlur="handleTextBlur"
+                :handleFocus="handleTextFocus"
                 :handleKeydownEnter="handleKeydownEnter"
                 :handleKeydownDelete="handleKeydownDelete"
                 :handleInput="handleTextInput" />
@@ -76,6 +75,12 @@ export default {
       type: Boolean
     },
     expandChildren: {
+      type: Function
+    },
+    handleTextFocus: {
+      type: Function
+    },
+    handleTextBlur: {
       type: Function
     },
     updateNodeText: {
@@ -210,19 +215,6 @@ export default {
       }))
     },
 
-    handleTextClick (evt) {},
-
-    handleTextFocus (evt) {
-      this.$store.commit('updateLastEditNode', this._id)
-      this.$store.commit('updateTextFieldFocusStatus', true)
-    },
-
-    handleTextBlur (evt) {
-      // onblur 时不要更新节点数据，原因：组件销毁（如缩进操作）会更新一次节点数据，
-      // 同时也会触发 onblur 事件，但是缩进过后其父节点已经被改变，而 onblur 事件处理函数无法得知该情况
-      this.$store.commit('updateTextFieldFocusStatus', false)
-    },
-
     handleTextInput (text) {
       this.lazyUpdateNode(this.updateNodeText(text))
     },
@@ -344,6 +336,7 @@ export default {
         }
       }
 
+      // 查找顺序：当前节点子节点 -> 当前节点下一个节点 -> 当前节点父节点的下一个节点
       // 如果有子节点且子节点是展开状态
       if (findTheFirstChildNode(_id)) {
         this.$store.commit('updateLastEditNode', findTheFirstChildNode(_id))

@@ -10,6 +10,8 @@ const up = 'up'
 const down = 'down'
 const cmdUp = 'cmd up'
 const cmdDown = 'cmd down'
+const shiftUp = 'shift up'
+const shiftDown = 'shift down'
 
 function convertKeydownEvent (evt) {
   return {
@@ -104,7 +106,7 @@ function handleKeydownCmdUp (keys, evt) {
     detectKey(keys, convertKeydownEvent(evt)) &&
     this.$store.state.status.textFieldFocus
   ) {
-    this.$root.$emit('command:moveLineUp', {
+    this.$root.$emit('command:moveNodeUp', {
       evt,
       lastEditNode: getLastEditNode()
     })
@@ -116,7 +118,37 @@ function handleKeydownCmdDown (keys, evt) {
     detectKey(keys, convertKeydownEvent(evt)) &&
     this.$store.state.status.textFieldFocus
   ) {
-    this.$root.$emit('command:moveLineDown', {
+    this.$root.$emit('command:moveNodeDown', {
+      evt,
+      lastEditNode: getLastEditNode()
+    })
+  }
+}
+
+function handleKeydownShiftUp (keys, evt) {
+  if (
+    detectKey(keys, convertKeydownEvent(evt)) &&
+    (
+      this.$store.state.status.textFieldFocus || // 输入框聚焦状态
+      this.$store.getters.selectionMode // 选择模式
+    )
+  ) {
+    this.$root.$emit('command:selectPrevNode', {
+      evt,
+      lastEditNode: getLastEditNode()
+    })
+  }
+}
+
+function handleKeydownShiftDown (keys, evt) {
+  if (
+    detectKey(keys, convertKeydownEvent(evt)) &&
+    (
+      this.$store.state.status.textFieldFocus ||
+      this.$store.getters.selectionMode
+    )
+  ) {
+    this.$root.$emit('command:selectNextNode', {
       evt,
       lastEditNode: getLastEditNode()
     })
@@ -169,17 +201,17 @@ export default {
         is_exclusive: false,
         is_unordered: true,
         on_keydown: handleKeydownCmdDown.bind(context, cmdDown)
+      },
+      {
+        keys: shiftUp, // 向上选择节点
+        is_exclusive: false,
+        on_keydown: handleKeydownShiftUp.bind(context, shiftUp)
+      },
+      {
+        keys: shiftDown, // 向下选择节点
+        is_exclusive: false,
+        on_keydown: handleKeydownShiftDown.bind(context, shiftDown)
       }
-      // {
-      //   keys: 'shift cmd up', // 向上选择节点
-      //   is_exclusive: false
-      //   // on_keydown: handleKeydownAltAndDown.bind(context)
-      // },
-      // {
-      //   keys: 'shift cmd down', // 向下选择节点
-      //   is_exclusive: false
-      //   // on_keydown: handleKeydownAltAndDown.bind(context)
-      // }
     ])
   },
 

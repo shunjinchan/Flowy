@@ -13,9 +13,22 @@ import RootContainer from './RootContainer'
 
 export default {
   name: 'board',
+
   components: {
     RootContainer,
     CrumbContainer
+  },
+
+  methods: {
+    bindEvents () {
+      document.addEventListener('click', (e) => {
+        this.$store.commit('clearSelectionNode')
+      })
+    }
+  },
+
+  mounted () {
+    this.bindEvents()
   }
 }
 </script>

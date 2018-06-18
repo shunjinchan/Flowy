@@ -5,7 +5,6 @@
         ref="input"
         v-html="text"
         @blur="handleBlur"
-        @click="handleClick"
         @focus="handleFocus" >
     </div>
   </div>
@@ -27,13 +26,6 @@ export default {
     isFocus: {
       type: Boolean,
       default: false
-    },
-    handleClick: {
-      type: Function,
-      default () {
-        return () => {}
-      },
-      require: false
     },
     handleInput: {
       type: Function,
@@ -77,6 +69,8 @@ export default {
       if (this.isFocus) {
         this.focus()
         this.collapseToEnd()
+      } else {
+        this.blur()
       }
     }
   },
@@ -90,6 +84,10 @@ export default {
 
     focus () {
       this.$refs.input.focus()
+    },
+
+    blur () {
+      this.$refs.input.blur()
     },
 
     format (command, value = null) {
@@ -169,6 +167,8 @@ export default {
     if (this.isFocus) {
       this.focus()
       this.collapseToEnd()
+    } else {
+      this.blur()
     }
   },
 
@@ -176,6 +176,8 @@ export default {
     if (this.isFocus) {
       this.focus()
       this.collapseToEnd()
+    } else {
+      this.blur()
     }
   }
 }
