@@ -34,6 +34,7 @@
 
 <script>
 import _ from 'lodash'
+import { logger } from '@/modules/logger'
 import NodeNote from './NodeNote'
 import NodeText from './NodeText'
 import NodeChildren from './NodeChildren'
@@ -270,24 +271,39 @@ export default {
 
     getParentNextNodeid (_id) {
       const node = this.$store.getters.getNode(_id)
+
+      if (!node) return null
+      // 如果没有父节点，直接定位到当前 id，正常情况下有且仅有 root 节点没有父节点
+      if (!node.parentid) return _id
+
       const parentid = node.parentid
-
-      // 如果没有父节点，直接定位到当前 id，有且仅有 root 节点没有父节点
-      if (!parentid) return _id
-
       const parentNode = this.$store.getters.getNode(parentid)
-      const index = parentNode.children.indexOf(_id)
 
-      // 该节点为当前层级节点的最后一个节点，递归往上查找
-      if (index > -1 && index >= parentNode.children.length - 1) {
-        return this.getParentNextNodeid(parentid)
+      if (
+        parentNode &&
+        parentNode.children &&
+        parentNode.children.indexOf(_id) > -1
+      ) {
+        const children = parentNode.children
+        const index = children.indexOf(_id)
+
+        // 该节点为当前层级节点的最后一个节点，递归往上查找
+        if (index >= children.length - 1) {
+          return this.getParentNextNodeid(parentid)
+        } else {
+          return children[index + 1]
+        }
       } else {
-        return parentNode.children[index + 1]
+        logger.error({
+          msg: `没有找到 _id 为 ${_id} 的父节点`
+        })
+        return null
       }
     },
 
     getPrevNodeid () {
-      return this.previd || this.parentid
+      // 没有 parent id 说明已经到根节点了
+      return this.previd || this.parentid || 'root'
     },
 
     getNextNodeid () {
@@ -308,12 +324,20 @@ export default {
         this.selectNode(this._id)
         this.updateLastEditNode(this._id)
         this.$store.commit('updateSelectionDirection', 'up')
-      } else if (this.selectionDirection === 'up') {
-        this.selectNode(this.getPrevNodeid())
-        this.updateLastEditNode(this.getPrevNodeid())
-      } else {
-        this.unselectNode(this._id)
-        this.updateLastEditNode(this._id)
+        return
+      }
+
+      if (this.selectionDirection === 'up') {
+        const prevNodeid = this.getPrevNodeid()
+        this.selectNode(prevNodeid)
+        this.updateLastEditNode(prevNodeid)
+        return
+      }
+
+      if (this.selectionDirection === 'down') {
+        this.unselectNode()
+        console.log(this.$store.state.selection.poppedNodeid)
+        this.updateLastEditNode(this.$store.state.selection.poppedNodeid)
       }
     },
 
@@ -329,13 +353,21 @@ export default {
         this.selectNode(this._id)
         this.updateLastEditNode(this._id)
         this.$store.commit('updateSelectionDirection', 'down')
-      } else if (this.selectionDirection === 'down') {
-        this.selectNode(this.getNextNodeid())
-        this.updateLastEditNode(this.getNextNodeid())
-      } else {
-        this.unselectNode(this._id)
-        this.updateLastEditNode(this._id)
+        return
       }
+
+      if (this.selectionDirection === 'down') {
+        const nextNodeid = this.getNextNodeid()
+        this.selectNode(nextNodeid)
+        this.updateLastEditNode(nextNodeid)
+        // return
+      }
+
+      // if (this.selectionDirection === 'up') {
+      //   console.log(this.$store.state.selection)
+      //   this.unselectNode()
+      //   this.updateLastEditNode(this.$store.state.selection.poppedNodeid)
+      // }
     },
 
     bindEvents () {

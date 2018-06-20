@@ -6,25 +6,29 @@ export default {
   /**
    * 更新所有节点数据，一般在页面初始化时使用
    * @param state
-   * @param data
+   * @param nodes
    */
-  setAllNode (state, data) {
-    data.forEach(item => {
+  setAllNode (state, nodes) {
+    nodes.forEach(item => {
       Vue.set(state, item._id, item)
     })
   },
 
-  addNode (state, data) {
-    Vue.set(state, data._id, data)
+  addNode (state, node) {
+    Vue.set(state, node._id, node)
+
+    if (node.parentid) {
+      node.grandparentid = state[node.parentid].parentid || ''
+    }
   },
 
   /**
    * 更新节点数据
    * @param state
-   * @param data
+   * @param node
    */
-  updateNode (state, data) {
-    state[data._id] = data
+  updateNode (state, node) {
+    state[node._id] = node
   },
 
   deleteNode (state, _ids) {

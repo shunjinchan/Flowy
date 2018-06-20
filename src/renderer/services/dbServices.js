@@ -1,5 +1,5 @@
 import db from '@/datastore'
-import { logger } from '../modules/logger'
+import { logger } from '@/modules/logger'
 
 export async function findOneAsync (data) {
   try {

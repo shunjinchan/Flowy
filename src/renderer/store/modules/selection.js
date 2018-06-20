@@ -1,7 +1,8 @@
 const state = {
   list: [],
   selectionMode: false,
-  direction: ''
+  direction: '',
+  poppedNodeid: ''
 }
 
 const mutations = {
@@ -10,7 +11,7 @@ const mutations = {
   },
 
   removeSelectionNode (state, _id) {
-    state.list.pop()
+    state.poppedNodeid = state.list.pop()
   },
 
   clearSelectionNode (state, _id) {

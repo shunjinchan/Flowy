@@ -17,5 +17,11 @@ export default {
             display: none;
         }
     }
+    &.selected {
+        background-color: #D4E8FD;
+        .node-children {
+        border-left-color: transparent;
+        }
+    }
 }
 </style>
