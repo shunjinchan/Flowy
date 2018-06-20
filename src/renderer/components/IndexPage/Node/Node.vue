@@ -95,7 +95,7 @@ export default {
     },
 
     parentid () {
-      return this.nodeData.parentid
+      return this.nodeData.parentid || ''
     },
 
     grandparentid () {
@@ -323,6 +323,7 @@ export default {
         this.$store.commit('updateSelectionDirection', 'up')
       }
 
+      // 首次选择，选择当前节点，并且记录选择方向
       if (this.selectionDirection === '') {
         this.selectNode(this._id)
         this.updateLastEditNode(this._id)
@@ -330,6 +331,7 @@ export default {
         return
       }
 
+      // 非首次选择，选择前一个节点
       if (this.selectionDirection === 'up') {
         const prevNodeid = this.getPrevNodeid()
         this.selectNode(prevNodeid)
@@ -337,10 +339,10 @@ export default {
         return
       }
 
+      // 逆向选择，从已选择节点的队列中删除节点，并更新下一个节点为队列中的最后一个节点
       if (this.selectionDirection === 'down') {
         this.unselectNode()
-        console.log(this.$store.state.selection.poppedNodeid)
-        this.updateLastEditNode(this.$store.state.selection.poppedNodeid)
+        this.updateLastEditNode(this.$store.state.selection.lastNodeid)
       }
     },
 
@@ -363,14 +365,13 @@ export default {
         const nextNodeid = this.getNextNodeid()
         this.selectNode(nextNodeid)
         this.updateLastEditNode(nextNodeid)
-        // return
+        return
       }
 
-      // if (this.selectionDirection === 'up') {
-      //   console.log(this.$store.state.selection)
-      //   this.unselectNode()
-      //   this.updateLastEditNode(this.$store.state.selection.poppedNodeid)
-      // }
+      if (this.selectionDirection === 'up') {
+        this.unselectNode()
+        this.updateLastEditNode(this.$store.state.selection.lastNodeid)
+      }
     },
 
     bindEvents () {

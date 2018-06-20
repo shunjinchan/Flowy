@@ -30,7 +30,6 @@ export default {
    */
   async addNode ({ commit }, nodeData) {
     const newNode = await insertAsync(nodeData)
-    commit('addNode', newNode)
     return newNode
   },
 

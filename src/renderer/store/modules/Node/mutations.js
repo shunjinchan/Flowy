@@ -16,10 +16,6 @@ export default {
 
   addNode (state, node) {
     Vue.set(state, node._id, node)
-
-    if (node.parentid) {
-      node.grandparentid = state[node.parentid].parentid || ''
-    }
   },
 
   /**

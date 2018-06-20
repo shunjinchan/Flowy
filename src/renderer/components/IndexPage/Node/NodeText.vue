@@ -13,9 +13,9 @@
                 :handleKeydownEnter="handleKeydownEnter"
                 :handleKeydownDelete="handleKeydownDelete"
                 :handleInput="handleTextInput" />
-    <div>
+    <!-- <div>
       <span>id: {{ _id }}</span>
-    </div>
+    </div> -->
   </div>
 </template>
 
