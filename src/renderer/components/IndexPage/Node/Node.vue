@@ -56,16 +56,6 @@ export default {
       default () {
         return {}
       }
-    },
-    parentid: {
-      type: String,
-      require: false
-    },
-    index: {
-      type: Number
-    },
-    grandparentid: {
-      type: String
     }
   },
 
@@ -85,9 +75,9 @@ export default {
       if (
         this.parentid &&
         this.nodeData._id &&
-        this.currentIndex >= 1
+        this.index >= 1
       ) {
-        previd = this.parentChildren[this.currentIndex - 1]
+        previd = this.parentChildren[this.index - 1]
       }
       return previd
     },
@@ -97,11 +87,24 @@ export default {
       if (
         this.parentid &&
         this.nodeData._id &&
-        this.currentIndex < this.parentChildren.length - 1
+        this.index < this.parentChildren.length - 1
       ) {
-        nextid = this.parentChildren[this.currentIndex + 1]
+        nextid = this.parentChildren[this.index + 1]
       }
       return nextid
+    },
+
+    parentid () {
+      return this.nodeData.parentid
+    },
+
+    grandparentid () {
+      let grandparentid = ''
+      if (this.parentid) {
+        const parentNode = this.$store.getters.getNode(this.parentid)
+        grandparentid = parentNode ? parentNode.parentid : ''
+      }
+      return grandparentid
     },
 
     children () {
@@ -117,7 +120,7 @@ export default {
       }
     },
 
-    currentIndex () {
+    index () {
       return this.parentChildren.indexOf(this.nodeData._id)
     },
 

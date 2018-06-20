@@ -31,8 +31,6 @@
     render (h) {
       if (!this.hasChildren) return
 
-      const parentid = this.nodeData._id
-      const grandparentid = this.parentid
       const ele = this.children.map((nodeid, index) => {
         const childNodeData = this.$store.getters.getNode(nodeid) || {}
         // Node 节点为什么不加 key={childNodeData._id}
@@ -41,9 +39,6 @@
         return (
           <Node
             nodeData={childNodeData}
-            index={index}
-            parentid={parentid}
-            grandparentid={grandparentid}
           />
         )
       })
