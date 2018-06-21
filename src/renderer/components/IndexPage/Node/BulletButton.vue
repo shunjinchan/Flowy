@@ -8,6 +8,7 @@
 <script>
 export default {
   name: 'bullet-button',
+
   props: {
     isCollapsed: {
       type: Boolean
@@ -18,6 +19,14 @@ export default {
         return () => {}
       }
     }
+  },
+
+  render (h) {
+    return (
+      <a class={{ 'bullet-button': true, collapse: this.isCollapsed }}
+        onClick={this.handleClick}>
+      </a>
+    )
   }
 }
 </script>

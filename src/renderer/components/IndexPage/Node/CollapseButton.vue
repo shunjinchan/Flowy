@@ -1,15 +1,7 @@
-<template>
-    <div class="collapse-button" @click="handleClick">
-        <svg viewBox="0 0 20 20" version="1.1"
-             xmlns="http://www.w3.org/2000/svg">
-            <line x1="5.5" y1="10" x2="14.5" y2="10"></line>
-        </svg>
-    </div>
-</template>
-
 <script>
 export default {
   name: 'collapse-button',
+
   props: {
     handleClick: {
       type: Function,
@@ -18,6 +10,17 @@ export default {
       },
       require: false
     }
+  },
+
+  render (h) {
+    return (
+      <div class="collapse-button" onClick={this.handleClick}>
+        <svg viewBox="0 0 20 20" version="1.1"
+          xmlns="http://www.w3.org/2000/svg">
+          <line x1="5.5" y1="10" x2="14.5" y2="10"></line>
+        </svg>
+      </div>
+    )
   }
 }
 </script>

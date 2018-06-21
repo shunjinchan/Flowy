@@ -1,15 +1,3 @@
-<template>
-  <div class="simple-text">
-    <div class="input"
-        contenteditable
-        ref="input"
-        v-html="text"
-        @blur="handleBlur"
-        @focus="handleFocus" >
-    </div>
-  </div>
-</template>
-
 <script>
 import { debounceTime, map, filter } from 'rxjs/operators'
 import { convertKeyName } from '@/modules/keyboard'
@@ -62,6 +50,21 @@ export default {
       },
       require: false
     }
+  },
+
+  render (h) {
+    return (
+      <div class="simple-text">
+        <div
+          contenteditable
+          ref="input"
+          class="input"
+          domProps-innerHTML={this.text}
+          onBlur={this.handleBlur}
+          onFocus={this.handleFocus}>
+        </div>
+      </div>
+    )
   },
 
   watch: {

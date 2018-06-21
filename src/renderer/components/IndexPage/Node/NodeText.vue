@@ -1,24 +1,3 @@
-<template>
-  <div class="node-text">
-    <collapse-button v-if="renderCollapseButton"
-                     :handleClick="collapseChildren" />
-    <expand-button v-if="renderExpandButton"
-                   :handleClick="expandChildren" />
-    <bullet-button :isCollapsed="isCollapsed"
-                   :handleClick="handleBulletClick" />
-    <text-field :text="text"
-                :isFocus="isFocusTextField"
-                :handleBlur="handleTextBlur"
-                :handleFocus="handleTextFocus"
-                :handleKeydownEnter="handleKeydownEnter"
-                :handleKeydownDelete="handleKeydownDelete"
-                :handleInput="handleTextInput" />
-    <!-- <div>
-      <span>id: {{ _id }}</span>
-    </div> -->
-  </div>
-</template>
-
 <script>
 import _ from 'lodash'
 import uuidv4 from 'uuid/v4'
@@ -90,6 +69,13 @@ export default {
       },
       require: false
     },
+    mergeNodeData: {
+      type: Function,
+      default () {
+        return () => {}
+      },
+      require: false
+    },
     lazyUpdateNode: {
       type: Function,
       default () {
@@ -113,6 +99,39 @@ export default {
     }
   },
 
+  render (h) {
+    const collapseButton = this.renderCollapseButton ? (
+      <collapse-button handleClick={this.collapseChildren} />
+    ) : null
+    const expandButton = this.renderExpandButton ? (
+      <expand-button handleClick={this.expandChildren} />
+    ) : null
+    const bulletButton = (
+      <bullet-button
+        isCollapsed={this.isCollapsed}
+        handleClick={this.handleBulletClick} />
+    )
+    const textField = (
+      <text-field
+        text={this.text}
+        isFocus={this.isFocusTextField}
+        handleBlur={this.handleTextBlur}
+        handleFocus={this.handleTextFocus}
+        handleKeydownEnter={this.handleKeydownEnter}
+        handleKeydownDelete={this.handleKeydownDelete}
+        handleInput={this.handleTextInput} />
+    )
+
+    return (
+      <div class="node-text">
+        {collapseButton}
+        {expandButton}
+        {bulletButton}
+        {textField}
+      </div>
+    )
+  },
+
   computed: {
     _id () {
       return this.nodeData._id
@@ -133,7 +152,8 @@ export default {
 
   methods: {
     // bullet-button
-    handleBulletClick () {
+    handleBulletClick (evt) {
+      evt.preventDefault()
       this.$router.push({ path: this._id })
       this.$store.dispatch('updateCrumb', this._id)
     },
@@ -196,7 +216,7 @@ export default {
 
       this.deleteNodeFromSourceNode(_id, parentid)
       this.moveNodeToTargetNode(_id, previd)
-      this.updateNode(_.merge({}, this.nodeData, {
+      this.updateNode(this.mergeNodeData({
         parentid: previd,
         attributes: { text: text }
       }))
@@ -209,7 +229,7 @@ export default {
 
       this.deleteNodeFromSourceNode(_id, parentid)
       this.moveNodeToTargetNode(_id, grandparentid, parentid)
-      this.updateNode(_.merge({}, this.nodeData, {
+      this.updateNode(this.mergeNodeData({
         parentid: grandparentid,
         attributes: { text: text }
       }))

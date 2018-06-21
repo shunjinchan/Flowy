@@ -1,12 +1,3 @@
-<template>
-  <div class="node-note" v-if="isFocus || note">
-    <note-field :isFocus="isFocus" 
-                :text="note"
-                :handleFocus="handleTextFocus"
-                :handleBlur="handleTextBlur" />
-  </div>
-</template>
-
 <script>
 import _ from 'lodash'
 import NoteField from './NoteField'
@@ -34,6 +25,19 @@ export default {
       },
       require: false
     }
+  },
+
+  render (h) {
+    const nodeText = (this.isFocus || this.note) ? (
+      <div class="node-note">
+        <note-field isFocus={this.isFocus}
+          text={this.note}
+          handleFocus={this.handleTextFocus}
+          handleBlur={this.handleTextBlur} />
+      </div>
+    ) : null
+
+    return ({nodeText})
   },
 
   computed: {
