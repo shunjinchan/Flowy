@@ -1,7 +1,3 @@
-<template>
-  <crumb :crumbList="crumbList" />
-</template>
-
 <script>
 import Crumb from './Crumb'
 
@@ -12,9 +8,15 @@ export default {
     Crumb
   },
 
+  render (h) {
+    return (
+      <crumb crumbList={this.crumbList} />
+    )
+  },
+
   computed: {
     crumb () {
-      return this.$store.state.Crumb || { current: 'root' }
+      return this.$store.state.crumb || { current: 'root' }
     },
 
     crumbList () {

@@ -155,7 +155,7 @@ export default {
     handleBulletClick (evt) {
       evt.preventDefault()
       this.$router.push({ path: this._id })
-      this.$store.dispatch('updateCrumb', this._id)
+      this.$store.commit('updateCrumb', this._id)
     },
 
     // text-field

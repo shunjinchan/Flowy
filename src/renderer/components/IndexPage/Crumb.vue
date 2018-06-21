@@ -1,19 +1,3 @@
-<template>
-  <section class="crumb">
-    <ul>
-      <template v-for="(crumb, index) in crumbList">
-        <li :key="index" v-if="crumb.attributes && crumb._id">
-            <a @click.prevent="handleClick(crumb._id)">
-              {{ crumb.attributes.text }}
-            </a>
-          <i></i>
-        </li>
-      </template>
-      
-    </ul>
-  </section>
-</template>
-
 <script>
 export default {
   name: 'crumb',
@@ -27,10 +11,33 @@ export default {
     }
   },
 
+  render (h) {
+    const list = this.crumbList.map((crumb, index) => {
+      if (crumb.attributes && crumb._id) {
+        return (
+          <li key={index}>
+            <a onClick={this.handleClick.bind(this, crumb._id)}>
+              {crumb.attributes.text}
+            </a>
+            <i></i>
+          </li>
+        )
+      }
+      return null
+    })
+
+    return (
+      <section class="crumb">
+        <ul>{list}</ul>
+      </section>
+    )
+  },
+
   methods: {
-    handleClick (_id) {
+    handleClick (_id, evt) {
+      evt.preventDefault()
       this.$router.push({ path: _id })
-      this.$store.dispatch('updateCrumb', _id)
+      this.$store.commit('updateCrumb', _id)
     }
   }
 }

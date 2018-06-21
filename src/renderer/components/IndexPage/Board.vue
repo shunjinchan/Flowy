@@ -1,12 +1,3 @@
-<template>
-    <main class="board">
-        <crumb-container />
-        <article className="article">
-            <root-container />
-        </article>
-    </main>
-</template>
-
 <script>
 import CrumbContainer from './CrumbContainer'
 import RootContainer from './RootContainer'
@@ -17,6 +8,17 @@ export default {
   components: {
     RootContainer,
     CrumbContainer
+  },
+
+  render (h) {
+    return (
+      <main class="board">
+        <crumb-container />
+        <article className="article">
+          <root-container />
+        </article>
+      </main>
+    )
   },
 
   methods: {

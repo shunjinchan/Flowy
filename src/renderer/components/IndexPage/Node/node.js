@@ -1,9 +1,9 @@
 import _ from 'lodash'
-// import { logger } from '@/modules/logger'
 import NodeNote from './NodeNote'
 import NodeText from './NodeText'
 import NodeChildren from './NodeChildren'
 import { selecePrevNode, selectNextNode } from './selectNode'
+import { moveNodeDown, moveNodeUp } from './moveNode'
 
 export default {
   name: 'node',
@@ -262,35 +262,10 @@ export default {
       this.$store.commit('updateTextFieldFocusStatus', false)
     },
 
-    // move node
-    swapNodePosition (sourceid, targetid, parentid) {
-      const parentNode = _.cloneDeep(this.$store.state.node[parentid])
-      const sourceIndex = parentNode.children.indexOf(sourceid)
-      const targetIndex = parentNode.children.indexOf(targetid)
-
-      parentNode.children[targetIndex] = sourceid
-      parentNode.children[sourceIndex] = targetid
-      this.updateNode(parentNode)
-    },
-
-    handleMoveNodeUp ({ evt, lastEditNode }) {
-      if (this._id !== lastEditNode || !this.previd) return
-
-      this.updateNode(this.updateNodeText(evt.target.innerHTML))
-      this.swapNodePosition(this._id, this.previd, this.parentid)
-    },
-
-    handleMoveNodeDown ({ evt, lastEditNode }) {
-      if (this._id !== lastEditNode || !this.nextid) return
-
-      this.updateNode(this.updateNodeText(evt.target.innerHTML))
-      this.swapNodePosition(this._id, this.nextid, this.parentid)
-    },
-
     bindEvents () {
       // TODO: 更换节点位置支持跨层级
-      this.$root.$on('command:moveNodeUp', this.handleMoveNodeUp)
-      this.$root.$on('command:moveNodeDown', this.handleMoveNodeDown)
+      this.$root.$on('command:moveNodeUp', moveNodeUp.bind(this))
+      this.$root.$on('command:moveNodeDown', moveNodeDown.bind(this))
       this.$root.$on('command:selectPrevNode', selecePrevNode.bind(this))
       this.$root.$on('command:selectNextNode', selectNextNode.bind(this))
     }
@@ -301,8 +276,8 @@ export default {
   },
 
   beforeDestroy () {
-    this.$root.$off('command:moveNodeUp', this.handleMoveNodeUp)
-    this.$root.$off('command:moveNodeDown', this.handleMoveNodeDown)
+    this.$root.$off('command:moveNodeUp', moveNodeUp)
+    this.$root.$off('command:moveNodeDown', moveNodeDown)
     this.$root.$off('command:selectPrevNode', selecePrevNode)
     this.$root.$off('command:selectNextNode', selectNextNode)
   }
