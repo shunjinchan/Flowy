@@ -1,4 +1,5 @@
 <script>
+import _ from 'lodash'
 import { fromEvent } from 'rxjs'
 import { map, concatAll, takeUntil } from 'rxjs/operators'
 
@@ -20,15 +21,44 @@ export default {
       default () {
         return () => {}
       }
+    },
+    nodeData: {
+      type: Object,
+      default () {
+        return {}
+      }
+    }
+  },
+
+  computed: {
+    children () {
+      return _.get(this.nodeData, 'children') || []
     }
   },
 
   render (h) {
+    const shadow = () => {
+      if (this.isDraging && this.children.length > 0) {
+        return (
+          this.children
+            .filter((child, index) => (index < 4))
+            .map((child, index) => (
+              <span style={{
+                top: (index + 1) * 11 + 'px',
+                opacity: 1 - (index + 1) * 0.2
+              }}></span>
+            ))
+        )
+      }
+      return null
+    }
     return (
       <div class="bullet-button">
         <a
           ref="bullet"
-          class={{collapse: this.isCollapsed, draging: this.isDraging}}></a>
+          class={{collapse: this.isCollapsed, draging: this.isDraging}}>
+          { shadow() }
+        </a>
       </div>
     )
   },
@@ -67,18 +97,36 @@ export default {
     height: 18px;
     margin: 1px 4px 1px 0;
     border-radius: 12px;
+    position: relative;
     a {
       display: block;
       width: 18px;
       height: 18px;
-      background: url("../../../assets/svg/bullet.svg") no-repeat;
-      border-radius: 12px;
-
+      &::before, > span {
+        background: url("../../../assets/svg/bullet.svg") no-repeat;
+        border-radius: 12px;
+        width: 18px;
+        height: 18px;
+        display: block;
+        position: absolute;
+      }
+      &::before {
+        content: "";
+        z-index: 2;
+      }
+      > span {
+        background-color: #aaa;
+        z-index: 1;
+      }
       &.collapse {
-        background-color: #e0e0e0;
+        &::before {
+          background-color: #e0e0e0;
+        }
       }
       &:hover, &.draging {
+        &::before {
           background-color: #aaa;
+        }
       }
       &.draging {
         position: fixed;

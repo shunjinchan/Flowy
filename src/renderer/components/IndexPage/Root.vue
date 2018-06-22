@@ -7,7 +7,7 @@ export default {
 }
 </script>
 
-<style lang="scss" scoped>
+<!--<style lang="scss" scoped>
 .node {
     > .node-children {
         padding-left: 18px;
@@ -25,3 +25,4 @@ export default {
     }
 }
 </style>
+-->

@@ -109,6 +109,7 @@ export default {
     const bulletButton = (
       <bullet-button
         isCollapsed={this.isCollapsed}
+        nodeData={this.nodeData}
         handleClick={this.handleBulletClick} />
     )
     const textField = (
@@ -399,7 +400,7 @@ export default {
 }
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 .node-text {
   display: flex;
   line-height: 20px;

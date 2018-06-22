@@ -1,7 +1,6 @@
 import _ from 'lodash'
 import NodeNote from './NodeNote'
 import NodeText from './NodeText'
-import NodeChildren from './NodeChildren'
 import { selecePrevNode, selectNextNode } from './selectNode'
 import { moveNodeDown, moveNodeUp } from './moveNode'
 
@@ -23,6 +22,12 @@ export default {
         return {}
       }
     }
+  },
+
+  components: {
+    NodeNote,
+    NodeText,
+    NodeChildren: () => import('./NodeChildren')
   },
 
   render (h) {
@@ -70,19 +75,12 @@ export default {
           node: true,
           focus: this.isFocusTextField,
           selected: this.isSelected
-        }}
-        data-id={this.nodeData._id}>
+        }}>
         {nodeText}
         {nodeNode}
         {nodeChildren}
       </section>
     )
-  },
-
-  components: {
-    NodeNote,
-    NodeText,
-    NodeChildren
   },
 
   computed: {
