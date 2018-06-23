@@ -1,5 +1,5 @@
 <script>
-import _ from 'lodash'
+// import _ from 'lodash'
 import { fromEvent } from 'rxjs'
 import { map, concatAll, takeUntil } from 'rxjs/operators'
 
@@ -13,8 +13,9 @@ export default {
   },
 
   props: {
-    isCollapsed: {
-      type: Boolean
+    backColor: {
+      type: String,
+      default: 'transparent'
     },
     handleClick: {
       type: Function,
@@ -22,25 +23,19 @@ export default {
         return () => {}
       }
     },
-    nodeData: {
-      type: Object,
+    list: {
+      type: Array,
       default () {
-        return {}
+        return []
       }
     }
   },
 
-  computed: {
-    children () {
-      return _.get(this.nodeData, 'children') || []
-    }
-  },
-
   render (h) {
-    const shadow = () => {
-      if (this.isDraging && this.children.length > 0) {
+    const preview = () => {
+      if (this.isDraging && this.list.length > 0) {
         return (
-          this.children
+          this.list
             .filter((child, index) => (index < 4))
             .map((child, index) => (
               <span style={{
@@ -52,41 +47,58 @@ export default {
       }
       return null
     }
+    const icon = (
+      <i style={{backgroundColor: this.backColor}}></i>
+    )
+    const bullet = (
+      <a
+        ref="bullet"
+        class={{draging: this.isDraging}}>
+        {icon}
+        {preview()}
+      </a>
+    )
+
     return (
       <div class="bullet-button">
-        <a
-          ref="bullet"
-          class={{collapse: this.isCollapsed, draging: this.isDraging}}>
-          { shadow() }
-        </a>
+        {bullet}
       </div>
     )
   },
 
   methods: {
-    observe () {
+    observeDrag () {
       const bullet = this.$refs.bullet
       const mouseDown = fromEvent(bullet, 'mousedown')
-      const mouseUp = fromEvent(document.body, 'mouseup')
-      const mouseMove = fromEvent(document.body, 'mousemove')
+      const mouseUp = fromEvent(document, 'mouseup')
+      const mouseMove = fromEvent(document, 'mousemove')
 
       mouseDown.pipe(
         // 当 mouseDown 时，转成 mouseMove 的事件，当 mouseUp 时，mousemove 事件结束
-        map(evt => mouseMove.pipe(takeUntil(mouseUp))),
+        map(evt => mouseMove.pipe(
+          takeUntil(mouseUp)
+        )),
         concatAll(),
         map(evt => ({ x: evt.clientX, y: evt.clientY }))
       ).subscribe(pos => {
-        this.isDraging = true
+        // 首次触发 mousemove
+        if (this.isDraging === false) {
+          this.isDraging = true
+          this.$emit('dragStart')
+        }
         bullet.style.left = pos.x - (bullet.clientWidth / 2) + 'px'
         bullet.style.top = pos.y - (bullet.clientHeight / 2) + 'px'
       })
 
-      mouseUp.subscribe((evt) => (this.isDraging = false))
+      mouseUp.subscribe((evt) => {
+        this.isDraging = false
+        this.$emit('dragEnd')
+      })
     }
   },
 
   mounted () {
-    this.observe()
+    this.observeDrag()
   }
 }
 </script>
@@ -102,7 +114,7 @@ export default {
       display: block;
       width: 18px;
       height: 18px;
-      &::before, > span {
+      > i, > span {
         background: url("../../../assets/svg/bullet.svg") no-repeat;
         border-radius: 12px;
         width: 18px;
@@ -110,7 +122,7 @@ export default {
         display: block;
         position: absolute;
       }
-      &::before {
+      > i {
         content: "";
         z-index: 2;
       }
@@ -118,14 +130,9 @@ export default {
         background-color: #aaa;
         z-index: 1;
       }
-      &.collapse {
-        &::before {
-          background-color: #e0e0e0;
-        }
-      }
       &:hover, &.draging {
-        &::before {
-          background-color: #aaa;
+        > i {
+          background-color: #aaa !important;
         }
       }
       &.draging {

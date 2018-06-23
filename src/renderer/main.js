@@ -1,7 +1,7 @@
 import Vue from 'vue'
 // import axios from 'axios'
-import ElementUI from 'element-ui'
-import 'element-ui/lib/theme-chalk/index.css'
+// import ElementUI from 'element-ui'
+// import 'element-ui/lib/theme-chalk/index.css'
 import VueRx from 'vue-rx'
 
 import App from './App'
@@ -13,7 +13,7 @@ if (!process.env.IS_WEB) Vue.use(require('vue-electron'))
 Vue.config.productionTip = false
 
 Vue.use(VueRx)
-Vue.use(ElementUI, { size: 'small' })
+// Vue.use(ElementUI, { size: 'small' })
 /* eslint-disable no-new */
 new Vue({
   components: { App },

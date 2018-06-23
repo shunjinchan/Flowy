@@ -23,6 +23,9 @@ export default {
         return {}
       }
     },
+    children: {
+      type: Array
+    },
     parentid: {
       type: String
     },
@@ -51,6 +54,9 @@ export default {
       type: Boolean
     },
     isFocusTextField: {
+      type: Boolean
+    },
+    isDraging: {
       type: Boolean
     },
     expandChildren: {
@@ -108,8 +114,11 @@ export default {
     ) : null
     const bulletButton = (
       <bullet-button
-        isCollapsed={this.isCollapsed}
-        nodeData={this.nodeData}
+        backColor={this.bulletBackColor}
+        isDraging={this.isDraging}
+        list={this.children}
+        onDragStart={this.handleDragStart}
+        onDragEnd={this.handleDragEnd}
         handleClick={this.handleBulletClick} />
     )
     const textField = (
@@ -141,6 +150,9 @@ export default {
       // 响应式：更新会将输入框的聚焦状态置换到首字符之前
       // 不是响应式：无法响应更新，例如路由跳转后
       return _.get(this.nodeData, 'attributes.text') || ''
+    },
+    bulletBackColor () {
+      return this.isCollapsed ? '#e0e0e0' : 'transparent'
     }
   },
 
@@ -157,6 +169,14 @@ export default {
       evt.preventDefault()
       this.$router.push({ path: this._id })
       this.$store.commit('updateCrumb', this._id)
+    },
+
+    handleDragStart (evt) {
+      console.log('handleDragStart')
+    },
+
+    handleDragEnd (evt) {
+      console.log('handleDragEnd')
     },
 
     // text-field

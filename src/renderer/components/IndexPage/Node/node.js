@@ -10,7 +10,8 @@ export default {
   data () {
     return {
       isFocus: false,
-      isSelected: false
+      isSelected: false,
+      isDraging: false
     }
   },
 
@@ -56,6 +57,8 @@ export default {
         grandparentid={this.grandparentid}
         isFocusTextField={this.isFocusTextField}
         isCollapsed={this.isCollapsed}
+        isDraging={this.isDraging}
+        children={this.children}
         renderCollapseButton={this.hasChildren && this.isExpanded}
         renderExpandButton={this.hasChildren && this.isCollapsed}
         collapseChildren={this.collapseChildren}
