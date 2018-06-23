@@ -54,6 +54,10 @@ function updateSelectionDirection (direction) {
   this.$store.commit('updateSelectionDirection', direction)
 }
 
+/**
+ * 选择上一个节点
+ * @param {{evt: Event, lastEditNode: string}} param0
+ */
 function selecePrevNode ({ evt, lastEditNode }) {
   // 输入模式下需要比对 id 是否一致
   if (this._id !== lastEditNode) return
@@ -86,6 +90,10 @@ function selecePrevNode ({ evt, lastEditNode }) {
   }
 }
 
+/**
+ * 选择下一个节点
+ * @param {{evt: Event, lastEditNode: string}} param0
+ */
 function selectNextNode ({ evt, lastEditNode }) {
   if (this._id !== lastEditNode) return
 

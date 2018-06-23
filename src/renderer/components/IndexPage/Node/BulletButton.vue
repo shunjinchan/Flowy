@@ -75,9 +75,7 @@ export default {
 
       mouseDown.pipe(
         // 当 mouseDown 时，转成 mouseMove 的事件，当 mouseUp 时，mousemove 事件结束
-        map(evt => mouseMove.pipe(
-          takeUntil(mouseUp)
-        )),
+        map(evt => mouseMove.pipe(takeUntil(mouseUp))),
         concatAll(),
         map(evt => ({ x: evt.clientX, y: evt.clientY }))
       ).subscribe(pos => {

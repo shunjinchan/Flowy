@@ -73,41 +73,40 @@ function convertKeyName (evt) {
 /* eslint-disable */
 /**
  * 检测按键
- * @param {string} keys
- * @param {{keyName: string, keyCode: number, cmdKey: boolean, shiftKey: boolean, ctrlKey: boolean, altKey: boolean, innerHTML: string, evt: Event}} data
+ * @param {string} keys 按键配置
+ * @param {{keyName: string, keyCode: number, cmdKey: boolean, shiftKey: boolean, ctrlKey: boolean, altKey: boolean, innerHTML: string, evt: Event}} evtData keydown 事件回调函数加工后的数据
  */
 /* eslint-enable */
-function detectKey (keys, data) {
+function detectKey (keys, evtData) {
   const modifierKeys = ['alt', 'cmd', 'shift', 'ctrl']
   keys = keys.split(' ')
 
+  // 匹配单个按键的情况，如 tab、up、down。需过滤修饰键被按下的情况
   if (keys.length === 1) {
     if (
-      keys[0] === data.keyName &&
-      modifierKeys.every(key => data[`${key}Key`] === false)
+      keys[0] === evtData.keyName &&
+      modifierKeys.every(key => evtData[`${key}Key`] === false) // 没有按下修饰键
     ) return true
     return false
   }
 
-  if (keys.length >= 2) {
-    if (keys.some(key => key === data.keyName)) {
-      // 配置的修饰键
-      const confModifierKeys = keys.filter(key => {
-        return modifierKeys.some(modifierKey => modifierKey === key)
-      })
-      // 其他修饰键
-      const otherModifierKeys = modifierKeys.filter(modifierKey => {
-        return confModifierKeys.every(key => key !== modifierKey)
-      })
+  // 匹配多个按键，按键规则：修饰键（1或多）+普通按键（1）
+  if (keys.length >= 2 && keys.some(key => key === evtData.keyName)) {
+    // 配置的修饰键
+    const confModifierKeys = keys.filter(key => {
+      return modifierKeys.some(modifierKey => modifierKey === key)
+    })
+    // 其他修饰键
+    const otherModifierKeys = modifierKeys.filter(modifierKey => {
+      return confModifierKeys.every(key => key !== modifierKey)
+    })
 
-      // 比对修饰键，按下的按键值为 true，没有按下的为 false
-      if (
-        confModifierKeys.every(key => data[`${key}Key`] === true) &&
-        otherModifierKeys.every(key => data[`${key}Key`] === false)
-      ) {
-        return true
-      }
-      return false
+    // 比对修饰键，按下的按键值为 true，没有按下的为 false
+    if (
+      confModifierKeys.every(key => evtData[`${key}Key`] === true) &&
+      otherModifierKeys.every(key => evtData[`${key}Key`] === false)
+    ) {
+      return true
     }
     return false
   }
