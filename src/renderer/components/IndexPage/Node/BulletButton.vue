@@ -69,29 +69,55 @@ export default {
   methods: {
     observeDrag () {
       const bullet = this.$refs.bullet
-      const mouseDown = fromEvent(bullet, 'mousedown')
-      const mouseUp = fromEvent(document, 'mouseup')
-      const mouseMove = fromEvent(document, 'mousemove')
+      const bulletWidth = bullet.clientWidth
+      const bulletHeight = bullet.clientHeight
+      const moveBullet = (left, top) => {
+        bullet.style.left = left + 'px'
+        bullet.style.top = top + 'px'
+      }
+      const dragObserver = (pos) => {
+        let range = {
+          left: 0, // 左边缘
+          right: document.body.clientWidth - bulletWidth, // 右边缘
+          top: 0,
+          bottom: document.body.clientHeight - bulletHeight
+        }
+        let getLeft = () => {
+          let left = pos.x - (bulletWidth / 2)
+          if (left < range.left) left = range.left
+          if (left > range.right) left = range.right
+          return left
+        }
+        let getTop = () => {
+          let top = pos.y - (bulletHeight / 2)
+          if (top < range.top) top = range.top
+          if (top > range.bottom) top = range.bottom
+          return top
+        }
 
-      mouseDown.pipe(
-        // 当 mouseDown 时，转成 mouseMove 的事件，当 mouseUp 时，mousemove 事件结束
-        map(evt => mouseMove.pipe(takeUntil(mouseUp))),
-        concatAll(),
-        map(evt => ({ x: evt.clientX, y: evt.clientY }))
-      ).subscribe(pos => {
         // 首次触发 mousemove
         if (this.isDraging === false) {
           this.isDraging = true
           this.$emit('dragStart')
         }
-        bullet.style.left = pos.x - (bullet.clientWidth / 2) + 'px'
-        bullet.style.top = pos.y - (bullet.clientHeight / 2) + 'px'
-      })
 
-      mouseUp.subscribe((evt) => {
+        moveBullet(getLeft(), getTop())
+      }
+      const dragEndObserver = (evt) => {
         this.isDraging = false
         this.$emit('dragEnd')
-      })
+      }
+      const mouseUp = fromEvent(document, 'mouseup')
+      const mouseMove = fromEvent(document, 'mousemove')
+      const mouseDown = fromEvent(bullet, 'mousedown').pipe(
+        // 当 mouseDown 时，转成 mouseMove 的事件，当 mouseUp 时，mousemove 事件结束
+        map(evt => mouseMove.pipe(takeUntil(mouseUp))),
+        concatAll(),
+        map(evt => ({ x: evt.clientX, y: evt.clientY }))
+      )
+
+      mouseDown.subscribe(dragObserver)
+      mouseUp.subscribe(dragEndObserver)
     }
   },
 

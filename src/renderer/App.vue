@@ -1,5 +1,5 @@
 <template>
-  <div id="app">
+  <div id="app" class="app">
     <router-view></router-view>
   </div>
 </template>
@@ -16,8 +16,8 @@ export default {
 </script>
 
 <style lang="scss">
-html, body {
-  height: 100%;
+html, body, .app {
+  min-height: 100%;
 }
 a {
   &:hover {

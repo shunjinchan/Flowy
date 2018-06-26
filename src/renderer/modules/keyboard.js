@@ -101,7 +101,7 @@ function detectKey (keys, evtData) {
       return confModifierKeys.every(key => key !== modifierKey)
     })
 
-    // 比对修饰键，按下的按键值为 true，没有按下的为 false
+    // 对比配置的修饰键与当前按下的修饰键是否一样
     if (
       confModifierKeys.every(key => evtData[`${key}Key`] === true) &&
       otherModifierKeys.every(key => evtData[`${key}Key`] === false)
