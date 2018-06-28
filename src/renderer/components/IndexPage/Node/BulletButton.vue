@@ -1,7 +1,9 @@
 <script>
 // import _ from 'lodash'
 import { fromEvent } from 'rxjs'
-import { map, concatAll, takeUntil } from 'rxjs/operators'
+import {
+  map, concatAll, takeUntil, filter, withLatestFrom, throttleTime
+} from 'rxjs/operators'
 
 export default {
   name: 'bullet-button',
@@ -75,33 +77,16 @@ export default {
         bullet.style.left = left + 'px'
         bullet.style.top = top + 'px'
       }
+      const validValue = (value, max, min) => {
+        return Math.min(Math.max(value, min), max)
+      }
       const dragObserver = (pos) => {
-        let range = {
-          left: 0, // 左边缘
-          right: document.body.clientWidth - bulletWidth, // 右边缘
-          top: 0,
-          bottom: document.body.clientHeight - bulletHeight
-        }
-        let getLeft = () => {
-          let left = pos.x - (bulletWidth / 2)
-          if (left < range.left) left = range.left
-          if (left > range.right) left = range.right
-          return left
-        }
-        let getTop = () => {
-          let top = pos.y - (bulletHeight / 2)
-          if (top < range.top) top = range.top
-          if (top > range.bottom) top = range.bottom
-          return top
-        }
-
         // 首次触发 mousemove
         if (this.isDraging === false) {
           this.isDraging = true
           this.$emit('dragStart')
         }
-
-        moveBullet(getLeft(), getTop())
+        moveBullet(pos.x, pos.y)
       }
       const dragEndObserver = (evt) => {
         this.isDraging = false
@@ -109,15 +94,31 @@ export default {
       }
       const mouseUp = fromEvent(document, 'mouseup')
       const mouseMove = fromEvent(document, 'mousemove')
-      const mouseDown = fromEvent(bullet, 'mousedown').pipe(
-        // 当 mouseDown 时，转成 mouseMove 的事件，当 mouseUp 时，mousemove 事件结束
-        map(evt => mouseMove.pipe(takeUntil(mouseUp))),
-        concatAll(),
-        map(evt => ({ x: evt.clientX, y: evt.clientY }))
-      )
+      const mouseDown = fromEvent(bullet, 'mousedown')
 
-      mouseDown.subscribe(dragObserver)
-      mouseUp.subscribe(dragEndObserver)
+      mouseDown.pipe(
+        filter(evt => !bullet.classList.contains('draging')),
+        // 当 mouseDown 时，转成 mouseMove 的事件，当 mouseUp 时，mousemove 事件结束
+        map(evt => mouseMove.pipe(takeUntil(mouseUp), throttleTime(12))),
+        // map 操作符本身返回一个 Observable
+        // .pipe 返回的也是一个 Observable，使用 concatAll 摊平
+        concatAll(),
+        // 只有在主要的 observable 送出新的值时，才會执行 callback
+        // 在这里主要的 observable 就是 mousemove
+        withLatestFrom(mouseDown, (move, down) => ({
+          // 限制移动点，不要超出浏览器视口
+          x: validValue(
+            move.clientX - down.offsetX, window.innerWidth - bulletWidth, 0
+          ),
+          y: validValue(
+            move.clientY - down.offsetY, window.innerHeight - bulletHeight, 0
+          )
+        }))
+      ).subscribe(dragObserver)
+
+      mouseUp.pipe(
+        filter(evt => bullet.classList.contains('draging'))
+      ).subscribe(dragEndObserver)
     }
   },
 
