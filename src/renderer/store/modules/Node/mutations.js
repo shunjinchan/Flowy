@@ -50,10 +50,5 @@ export default {
         if (key !== 'root') state[key] = null
       }
     }
-  },
-
-  updateLastEditNode (state, _id) {
-    state.lastEditNode = _id
-    setLastEditNode(_id)
   }
 }

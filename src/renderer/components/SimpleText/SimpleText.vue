@@ -15,6 +15,10 @@ export default {
       type: Boolean,
       default: false
     },
+    isEditable: {
+      type: Boolean,
+      default: false
+    },
     handleInput: {
       type: Function,
       default () {
@@ -56,9 +60,9 @@ export default {
     return (
       <div class="simple-text">
         <div
-          contenteditable
           ref="input"
           class="input"
+          contenteditable={this.isEditable}
           domProps-innerHTML={this.text}
           onBlur={this.handleBlur}
           onFocus={this.handleFocus}>

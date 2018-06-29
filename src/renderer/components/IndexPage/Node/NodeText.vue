@@ -115,16 +115,14 @@ export default {
     const bulletButton = (
       <bullet-button
         backColor={this.bulletBackColor}
-        isDraging={this.isDraging}
         list={this.children}
-        onDragStart={this.handleDragStart}
-        onDragEnd={this.handleDragEnd}
         handleClick={this.handleBulletClick} />
     )
     const textField = (
       <text-field
         text={this.text}
         isFocus={this.isFocusTextField}
+        isEditable={!this.isDraging}
         handleBlur={this.handleTextBlur}
         handleFocus={this.handleTextFocus}
         handleKeydownEnter={this.handleKeydownEnter}
@@ -169,14 +167,6 @@ export default {
       evt.preventDefault()
       this.$router.push({ path: this._id })
       this.$store.commit('updateCrumb', this._id)
-    },
-
-    handleDragStart (evt) {
-      console.log('handleDragStart')
-    },
-
-    handleDragEnd (evt) {
-      console.log('handleDragEnd')
     },
 
     // text-field

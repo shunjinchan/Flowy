@@ -10,8 +10,7 @@ export default {
   data () {
     return {
       isFocus: false,
-      isSelected: false,
-      isDraging: false
+      isSelected: false
     }
   },
 
@@ -57,7 +56,9 @@ export default {
         grandparentid={this.grandparentid}
         isFocusTextField={this.isFocusTextField}
         isCollapsed={this.isCollapsed}
-        isDraging={this.isDraging}
+        isDraging={this.dragMode.status}
+        onDragStart={this.handleDragStart}
+        onDragEnd={this.handleDragEnd}
         children={this.children}
         renderCollapseButton={this.hasChildren && this.isExpanded}
         renderExpandButton={this.hasChildren && this.isCollapsed}
@@ -77,7 +78,8 @@ export default {
         class={{
           node: true,
           focus: this.isFocusTextField,
-          selected: this.isSelected
+          selected: this.isSelected,
+          draging: this.isDragingNode
         }}>
         {nodeText}
         {nodeNode}
@@ -158,12 +160,20 @@ export default {
       return _.get(this.nodeData, 'attributes.isExpanded') !== false
     },
 
+    isDragingNode () {
+      return this.dragMode.status && this._id === this.dragMode._id
+    },
+
     isCollapsed () {
       return !this.isExpanded
     },
 
     lastEditNode () {
       return this.$store.getters.lastEditNode
+    },
+
+    dragMode () {
+      return this.$store.getters.dragMode
     },
 
     isFocusTextField () {
@@ -261,6 +271,22 @@ export default {
       // onblur 时不要更新节点数据，原因：组件销毁（如缩进操作）会更新一次节点数据，
       // 同时也会触发 onblur 事件，但是缩进过后其父节点已经被改变，而 onblur 事件处理函数无法得知该情况
       this.$store.commit('updateTextFieldFocusStatus', false)
+    },
+
+    handleDragStart () {
+      if (!this.dragMode.status) {
+        this.$store.commit('updatedragMode', {
+          status: true,
+          _id: this._id
+        })
+      }
+    },
+
+    handleDragEnd () {
+      this.$store.commit('updatedragMode', {
+        status: false,
+        _id: ''
+      })
     },
 
     bindEvents () {

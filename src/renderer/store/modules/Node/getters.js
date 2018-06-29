@@ -9,9 +9,5 @@ export default {
       })
       return null
     }
-  },
-
-  lastEditNode (state) {
-    return state.lastEditNode
   }
 }

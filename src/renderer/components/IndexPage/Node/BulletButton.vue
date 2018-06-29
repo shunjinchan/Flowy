@@ -81,16 +81,14 @@ export default {
         return Math.min(Math.max(value, min), max)
       }
       const dragObserver = (pos) => {
+        this.isDraging = true
         // 首次触发 mousemove
-        if (this.isDraging === false) {
-          this.isDraging = true
-          this.$emit('dragStart')
-        }
+        this.$parent.$emit('dragStart')
         moveBullet(pos.x, pos.y)
       }
       const dragEndObserver = (evt) => {
         this.isDraging = false
-        this.$emit('dragEnd')
+        this.$parent.$emit('dragEnd')
       }
       const mouseUp = fromEvent(document, 'mouseup')
       const mouseMove = fromEvent(document, 'mousemove')

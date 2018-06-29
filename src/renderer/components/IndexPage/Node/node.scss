@@ -8,20 +8,24 @@
         display: none;
     }
   }
+  &.draging {
+    border-radius: 5px;
+    background-color: #eee;
+    user-select: none;
+  }
   &.focus {
     > .node-text {
-      &::before {
-        content: '';
-        background-color: #eee;
-        height: 100%;
-        left: -5px;
-        padding: 2px 5px 1px;
-        position: absolute;
-        top: 0;
-        width: 100%;
-        border-radius: 5px;
-        z-index: -1;
-      }
+      // &::before {
+      //   content: '';
+      //   background-color: #eee;
+      //   height: 100%;
+      //   padding: 2px 5px 1px;
+      //   position: absolute;
+      //   top: 0;
+      //   width: 100%;
+      //   border-radius: 5px;
+      //   z-index: -1;
+      // }
     }
   }
   &.selected {
