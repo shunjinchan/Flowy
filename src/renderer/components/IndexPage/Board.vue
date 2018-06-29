@@ -1,12 +1,12 @@
 <script>
 import CrumbContainer from './CrumbContainer'
-import RootContainer from './RootContainer'
+import Tree from './Tree'
 
 export default {
   name: 'board',
 
   components: {
-    RootContainer,
+    Tree,
     CrumbContainer
   },
 
@@ -15,7 +15,7 @@ export default {
       <main class="board">
         <crumb-container />
         <article className="article">
-          <root-container />
+          <tree />
         </article>
       </main>
     )

@@ -2,7 +2,7 @@
 import Root from './Root'
 
 export default {
-  name: 'root-container',
+  name: 'tree',
 
   components: {
     Root
